@@ -438,15 +438,18 @@
     };
     let currentPage = 'editor';
     let isAdmin = false;
+    let bmobInitialized = false;
 
     // 初始化
     document.addEventListener('DOMContentLoaded', function() {
       // 初始化 Bmob（使用 try-catch 避免加载失败影响其他功能）
+      let bmobInitialized = false;
       try {
         if (typeof Bmob !== 'undefined') {
           // 使用正确的参数顺序初始化
           Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "c4306f2d1c48cea5e10b6969cc8162e4");
           console.log('Bmob 初始化成功');
+          bmobInitialized = true;
         } else {
           console.warn('Bmob SDK 未加载，将使用本地存储');
         }
@@ -971,28 +974,33 @@
       localStorage.setItem('surveys', JSON.stringify(surveys));
 
       // 保存到 Bmob 云端
-      try {
-        const Survey = Bmob.Query('Surveys');
-        
-        if (currentSurvey.bmobId) {
-          // 更新现有问卷
-          Survey.set('id', currentSurvey.bmobId);
-        }
-        
-        Survey.set('title', currentSurvey.title);
-        Survey.set('description', currentSurvey.description);
-        Survey.set('code', currentSurvey.code);
-        Survey.set('questions', currentSurvey.questions);
-        
-        Survey.save().then(res => {
-          currentSurvey.bmobId = res.objectId;
-          showToast('问卷保存成功（已同步到云端）');
-        }).catch(err => {
-          console.error('Bmob 保存失败:', err);
+      if (bmobInitialized) {
+        try {
+          const Survey = Bmob.Query('Surveys');
+          
+          if (currentSurvey.bmobId) {
+            // 更新现有问卷
+            Survey.set('id', currentSurvey.bmobId);
+          }
+          
+          Survey.set('title', currentSurvey.title);
+          Survey.set('description', currentSurvey.description);
+          Survey.set('code', currentSurvey.code);
+          Survey.set('questions', currentSurvey.questions);
+          
+          Survey.save().then(res => {
+            currentSurvey.bmobId = res.objectId;
+            showToast('问卷保存成功（已同步到云端）');
+          }).catch(err => {
+            console.error('Bmob 保存失败:', err);
+            showToast('问卷保存成功（仅本地）');
+          });
+        } catch (error) {
+          console.error('Bmob 初始化失败:', error);
           showToast('问卷保存成功（仅本地）');
-        });
-      } catch (error) {
-        console.error('Bmob 初始化失败:', error);
+        }
+      } else {
+        // Bmob 未初始化，只保存到本地
         showToast('问卷保存成功（仅本地）');
       }
     }
@@ -1096,38 +1104,43 @@
       const surveysList = document.getElementById('surveys-list');
 
       // 从 Bmob 云端加载数据
-      try {
-        const Survey = Bmob.Query('Surveys');
-        Survey.find().then(res => {
-          if (res && res.length > 0) {
-            // 将 Bmob 数据转换为本地格式
-            const cloudSurveys = res.map(item => ({
-              id: item.code || item.objectId,
-              bmobId: item.objectId,
-              title: item.title,
-              description: item.description,
-              code: item.code,
-              questions: item.questions || [],
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt
-            }));
-            
-            // 更新本地存储
-            localStorage.setItem('surveys', JSON.stringify(cloudSurveys));
-            surveys = cloudSurveys;
-            
-            // 重新渲染问卷列表
+      if (bmobInitialized) {
+        try {
+          const Survey = Bmob.Query('Surveys');
+          Survey.find().then(res => {
+            if (res && res.length > 0) {
+              // 将 Bmob 数据转换为本地格式
+              const cloudSurveys = res.map(item => ({
+                id: item.code || item.objectId,
+                bmobId: item.objectId,
+                title: item.title,
+                description: item.description,
+                code: item.code,
+                questions: item.questions || [],
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt
+              }));
+              
+              // 更新本地存储
+              localStorage.setItem('surveys', JSON.stringify(cloudSurveys));
+              surveys = cloudSurveys;
+              
+              // 重新渲染问卷列表
+              renderSurveysList(surveys, trash, surveysList);
+              showToast('已从云端同步问卷数据');
+            }
+          }).catch(err => {
+            console.error('Bmob 加载失败:', err);
+            // 加载失败时使用本地数据
             renderSurveysList(surveys, trash, surveysList);
-            showToast('已从云端同步问卷数据');
-          }
-        }).catch(err => {
-          console.error('Bmob 加载失败:', err);
-          // 加载失败时使用本地数据
+          });
+        } catch (error) {
+          console.error('Bmob 初始化失败:', error);
+          // 初始化失败时使用本地数据
           renderSurveysList(surveys, trash, surveysList);
-        });
-      } catch (error) {
-        console.error('Bmob 初始化失败:', error);
-        // 初始化失败时使用本地数据
+        }
+      } else {
+        // Bmob 未初始化，直接使用本地数据
         renderSurveysList(surveys, trash, surveysList);
       }
 
@@ -1356,26 +1369,39 @@
       let survey = surveys.find(s => s.code === code);
 
       // 从 Bmob 云端查找问卷
-      try {
-        const Survey = Bmob.Query('Surveys');
-        Survey.equalTo('code', code);
-        Survey.find().then(res => {
-          if (res && res.length > 0) {
-            // 找到问卷
-            const cloudSurvey = res[0];
-            currentSurvey = {
-              id: cloudSurvey.code || cloudSurvey.objectId,
-              bmobId: cloudSurvey.objectId,
-              title: cloudSurvey.title,
-              description: cloudSurvey.description,
-              code: cloudSurvey.code,
-              questions: cloudSurvey.questions || []
-            };
-            renderFillSurvey();
-            showMainContent();
-            switchPage('fill');
-          } else {
-            // 云端没找到，使用本地数据
+      if (bmobInitialized) {
+        try {
+          const Survey = Bmob.Query('Surveys');
+          Survey.equalTo('code', code);
+          Survey.find().then(res => {
+            if (res && res.length > 0) {
+              // 找到问卷
+              const cloudSurvey = res[0];
+              currentSurvey = {
+                id: cloudSurvey.code || cloudSurvey.objectId,
+                bmobId: cloudSurvey.objectId,
+                title: cloudSurvey.title,
+                description: cloudSurvey.description,
+                code: cloudSurvey.code,
+                questions: cloudSurvey.questions || []
+              };
+              renderFillSurvey();
+              showMainContent();
+              switchPage('fill');
+            } else {
+              // 云端没找到，使用本地数据
+              if (survey) {
+                currentSurvey = survey;
+                renderFillSurvey();
+                showMainContent();
+                switchPage('fill');
+              } else {
+                showToast('未找到对应编码的问卷', 'error');
+              }
+            }
+          }).catch(err => {
+            console.error('Bmob 查询失败:', err);
+            // 查询失败，使用本地数据
             if (survey) {
               currentSurvey = survey;
               renderFillSurvey();
@@ -1384,10 +1410,10 @@
             } else {
               showToast('未找到对应编码的问卷', 'error');
             }
-          }
-        }).catch(err => {
-          console.error('Bmob 查询失败:', err);
-          // 查询失败，使用本地数据
+          });
+        } catch (error) {
+          console.error('Bmob 初始化失败:', error);
+          // 初始化失败，使用本地数据
           if (survey) {
             currentSurvey = survey;
             renderFillSurvey();
@@ -1396,10 +1422,9 @@
           } else {
             showToast('未找到对应编码的问卷', 'error');
           }
-        });
-      } catch (error) {
-        console.error('Bmob 初始化失败:', error);
-        // 初始化失败，使用本地数据
+        }
+      } else {
+        // Bmob 未初始化，直接使用本地数据
         if (survey) {
           currentSurvey = survey;
           renderFillSurvey();
@@ -1629,22 +1654,24 @@
         }
 
         // 保存到 Bmob 云端
-        try {
-          const Response = Bmob.Query('Responses');
-          Response.set('surveyId', currentSurvey.id);
-          Response.set('surveyCode', currentSurvey.code);
-          Response.set('answers', answers);
-          Response.set('userName', userInfo.surname);
-          Response.set('userBirthdate', userInfo.birthdate);
-          Response.set('submittedAt', new Date().toISOString());
-          
-          Response.save().then(res => {
-            console.log('Bmob 答卷保存成功:', res);
-          }).catch(err => {
-            console.error('Bmob 答卷保存失败:', err);
-          });
-        } catch (error) {
-          console.error('Bmob 初始化失败:', error);
+        if (bmobInitialized) {
+          try {
+            const Response = Bmob.Query('Responses');
+            Response.set('surveyId', currentSurvey.id);
+            Response.set('surveyCode', currentSurvey.code);
+            Response.set('answers', answers);
+            Response.set('userName', userInfo.surname);
+            Response.set('userBirthdate', userInfo.birthdate);
+            Response.set('submittedAt', new Date().toISOString());
+            
+            Response.save().then(res => {
+              console.log('Bmob 答卷保存成功:', res);
+            }).catch(err => {
+              console.error('Bmob 答卷保存失败:', err);
+            });
+          } catch (error) {
+            console.error('Bmob 初始化失败:', error);
+          }
         }
 
         // 关闭模态框
