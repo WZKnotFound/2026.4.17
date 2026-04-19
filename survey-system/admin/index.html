@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>问卷系统 - 管理员</title>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <!-- Bmob SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/hydrogen-js-sdk@2.7.3/dist/Bmob-2.7.3.min.js"></script>
+  <!-- html-docx-js -->
+  <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+  <!-- FileSaver.js -->
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#6B7280',
+            success: '#10B981',
+            danger: '#EF4444',
+            warning: '#F59E0B',
+            info: '#3B82F6',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .transition-all-300 {
+        transition: all 0.3s ease;
+      }
+      .shadow-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .btn-primary {
+        @apply bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-all duration-300;
+      }
+      .btn-secondary {
+        @apply bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all duration-300;
+      }
+      .btn-danger {
+        @apply bg-danger text-white px-4 py-2 rounded-lg hover:bg-danger/90 transition-all duration-300;
+      }
+      .card {
+        @apply bg-white rounded-lg shadow p-6;
+      }
+      .form-input {
+        @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+      }
+      .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+      }
+      .form-checkbox {
+        @apply rounded text-primary focus:ring-primary;
+      }
+      .form-radio {
+        @apply text-primary focus:ring-primary;
+      }
+      .star {
+        @apply text-gray-300 hover:text-yellow-400 cursor-pointer transition-colors;
+      }
+      .star.active {
+        @apply text-yellow-400;
+      }
+      .question-card {
+        @apply border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow;
+      }
+      .option-item {
+        @apply flex items-center mb-2;
+      }
+      .option-item input {
+        @apply mr-2;
+      }
+      .toast {
+        @apply fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-y-0 opacity-100;
+      }
+      .toast.success {
+        @apply bg-success text-white;
+      }
+      .toast.error {
+        @apply bg-danger text-white;
+      }
+      .toast.info {
+        @apply bg-info text-white;
+      }
+      .modal {
+        @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+      }
+      .modal-content {
+        @apply bg-white rounded-lg shadow-xl p-6 max-w-md w-full;
+      }
+      .tab-content {
+        @apply mt-4;
+      }
+    }
+  </style>
+  <script>
+    // 初始化 Bmob
+    Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "c4306f2d1c48cea5e10b6969cc8162e4");
+  </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- 管理员登录页面 -->
+  <div id="admin-login" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
+      <div class="text-center mb-6">
+        <i class="fa fa-user-circle text-4xl text-primary mb-4"></i>
+        <h2 class="text-xl font-bold">管理员登录</h2>
+        <p class="text-gray-600">请输入账号密码</p>
+      </div>
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label for="login-username" class="form-label">账号</label>
+          <input type="text" id="login-username" class="form-input" placeholder="请输入账号" required>
+        </div>
+        <div>
+          <label for="login-password" class="form-label">密码</label>
+          <input type="password" id="login-password" class="form-input" placeholder="请输入密码" required>
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" id="remember-me" class="form-checkbox">
+          <label for="remember-me" class="ml-2 text-sm text-gray-600">记住我</label>
+        </div>
+        <button type="submit" class="btn-primary w-full py-2">
+          <i class="fa fa-sign-in mr-2"></i> 登录
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 主界面 -->
+  <div id="main-content" class="hidden">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <i class="fa fa-question-circle text-primary text-2xl"></i>
+          <h1 class="text-xl font-bold">问卷系统 - 管理员</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button id="btn-surveys" class="btn-secondary">
+            <i class="fa fa-list mr-1"></i> 问卷列表
+          </button>
+          <button id="btn-create" class="btn-primary">
+            <i class="fa fa-plus mr-1"></i> 新建问卷
+          </button>
+          <button id="btn-logout" class="btn-secondary">
+            <i class="fa fa-sign-out mr-1"></i> 退出
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 内容区域 -->
+    <div class="container mx-auto px-4 py-6">
+      <!-- 编辑器页面 -->
+      <div id="editor-content" class="card">
+        <h2 class="text-xl font-bold mb-6">问卷编辑器</h2>
+        <div class="space-y-6">
+          <!-- 问卷基本信息 -->
+          <div class="space-y-4">
+            <div>
+              <label for="survey-title" class="form-label">问卷标题</label>
+              <input type="text" id="survey-title" class="form-input" placeholder="请输入问卷标题" required>
+            </div>
+            <div>
+              <label for="survey-description" class="form-label">问卷描述</label>
+              <textarea id="survey-description" class="form-input" rows="3" placeholder="请输入问卷描述"></textarea>
+            </div>
+          </div>
+
+          <!-- 题目列表 -->
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">题目列表</h3>
+              <button id="add-question" class="btn-primary flex items-center">
+                <i class="fa fa-plus mr-1"></i> 添加题目
+              </button>
+            </div>
+            <div id="questions-container" class="space-y-4">
+              <div class="text-center py-8 text-gray-500">
+                <i class="fa fa-question-circle text-2xl mb-2"></i>
+                <p>暂无题目，点击"添加题目"按钮开始</p>
+              </div>
+            </div>
+            <div class="mt-4 flex justify-end space-x-2">
+              <button id="clear-questions" class="btn-secondary flex items-center">
+                <i class="fa fa-trash mr-2"></i> 清空题目
+              </button>
+            </div>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="flex justify-end space-x-4 pt-4 border-t">
+            <button id="btn-save" class="btn-primary flex items-center">
+              <i class="fa fa-save mr-2"></i> 保存问卷
+            </button>
+            <button id="btn-export" class="btn-secondary flex items-center">
+              <i class="fa fa-download mr-2"></i> 导出问卷
+            </button>
+            <button id="btn-export-docx" class="btn-secondary flex items-center">
+              <i class="fa fa-file-word-o mr-2"></i> 导出DOCX
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 问卷列表页面 -->
+      <div id="surveys-content" class="hidden">
+        <h2 class="text-xl font-bold mb-6">我的问卷</h2>
+        <div id="surveys-list">
+          <!-- 问卷列表将通过JS动态添加 -->
+        </div>
+      </div>
+
+      <!-- 统计页面 -->
+      <div id="stats-content" class="hidden">
+        <h2 class="text-xl font-bold mb-6">数据统计</h2>
+        <div id="stats-surveys-list" class="space-y-4 mb-6">
+          <!-- 问卷列表将通过JS动态添加 -->
+        </div>
+        <div id="stats-details" class="hidden mt-6 card">
+          <!-- 统计详情将通过JS动态添加 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框 -->
+  <div id="modal" class="hidden modal">
+    <div class="modal-content">
+      <div id="modal-content">
+        <!-- 模态框内容将通过JS动态添加 -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let currentSurvey = {
+      id: '',
+      title: '',
+      description: '',
+      questions: []
+    };
+    let currentPage = 'surveys';
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      initEventListeners();
+      loadSurveys();
+    });
+
+    // 初始化事件监听器
+    function initEventListeners() {
+      // 登录表单
+      document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        if (username === 'admin' && password === '123456') {
+          document.getElementById('admin-login').classList.add('hidden');
+          document.getElementById('main-content').classList.remove('hidden');
+          switchPage('surveys');
+        } else {
+          showToast('账号或密码错误', 'error');
+        }
+      });
+
+      // 导航栏按钮
+      document.getElementById('btn-surveys').addEventListener('click', function() {
+        switchPage('surveys');
+      });
+      document.getElementById('btn-create').addEventListener('click', function() {
+        createNewSurvey();
+      });
+      document.getElementById('btn-logout').addEventListener('click', function() {
+        document.getElementById('main-content').classList.add('hidden');
+        document.getElementById('admin-login').classList.remove('hidden');
+        // 清空登录输入框
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+      });
+
+      // 编辑器页面按钮
+      document.getElementById('add-question').addEventListener('click', openAddQuestionModal);
+      document.getElementById('clear-questions').addEventListener('click', function() {
+        if (confirm('确定要清空所有题目吗？')) {
+          currentSurvey.questions = [];
+          renderQuestions();
+        }
+      });
+      document.getElementById('btn-save').addEventListener('click', saveSurvey);
+      document.getElementById('btn-export').addEventListener('click', exportSurvey);
+      document.getElementById('btn-export-docx').addEventListener('click', exportSurveyDOCX);
+    }
+
+    // 切换页面
+    function switchPage(page) {
+      currentPage = page;
+      document.getElementById('editor-content').classList.add('hidden');
+      document.getElementById('surveys-content').classList.add('hidden');
+      document.getElementById('stats-content').classList.add('hidden');
+      document.getElementById(`${page}-content`).classList.remove('hidden');
+
+      if (page === 'surveys') {
+        loadSurveys();
+      } else if (page === 'stats') {
+        loadSurveysForStats();
+      }
+    }
+
+    // 创建新问卷
+    function createNewSurvey() {
+      currentSurvey = {
+        id: Date.now().toString(),
+        title: '',
+        description: '',
+        code: '',
+        questions: []
+      };
+      document.getElementById('survey-title').value = '';
+      document.getElementById('survey-description').value = '';
+      renderQuestions();
+      switchPage('editor');
+    }
+
+    // 打开添加题目模态框
+    function openAddQuestionModal() {
+      const modalContent = document.getElementById('modal-content');
+      modalContent.innerHTML = `
+        <div class="text-center mb-4">
+          <h3 class="text-lg font-bold">添加题目</h3>
+        </div>
+        <form id="add-question-form" class="space-y-4">
+          <div>
+            <label for="question-text" class="form-label">题目内容</label>
+            <input type="text" id="question-text" class="form-input" placeholder="请输入题目内容" required>
+          </div>
+          <div>
+            <label for="question-type" class="form-label">题目类型</label>
+            <select id="question-type" class="form-input">
+              <option value="single">单选题</option>
+              <option value="multiple">多选题</option>
+              <option value="text">填空题</option>
+              <option value="textarea">简答题</option>
+              <option value="date">日期题</option>
+              <option value="rating">评分题</option>
+            </select>
+          </div>
+          <div id="options-container" class="space-y-2">
+            <label class="form-label">选项（单选题/多选题）</label>
+            <div class="flex space-x-2">
+              <input type="text" class="form-input option-input" placeholder="请输入选项内容">
+              <button type="button" class="btn-secondary add-option">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" class="form-checkbox" id="question-required">
+              <span class="ml-2">必填</span>
+            </label>
+          </div>
+          <div>
+            <label for="jump-logic" class="form-label">跳转逻辑</label>
+            <select id="jump-logic" class="form-input">
+              <option value="">无跳转</option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">选择该题目后跳转到指定题目</p>
+          </div>
+          <div class="flex justify-end space-x-2">
+            <button type="button" class="btn-secondary" onclick="closeModal()">取消</button>
+            <button type="submit" class="btn-primary">确定</button>
+          </div>
+        </form>
+      `;
+
+      // 绑定事件
+      document.getElementById('question-type').addEventListener('change', function() {
+        const optionsContainer = document.getElementById('options-container');
+        if (this.value === 'single' || this.value === 'multiple') {
+          optionsContainer.classList.remove('hidden');
+        } else {
+          optionsContainer.classList.add('hidden');
+        }
+      });
+
+      // 添加选项按钮
+      document.querySelector('.add-option').addEventListener('click', function() {
+        const optionsContainer = document.getElementById('options-container');
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'flex space-x-2';
+        optionDiv.innerHTML = `
+          <input type="text" class="form-input option-input" placeholder="请输入选项内容">
+          <button type="button" class="btn-danger remove-option">
+            <i class="fa fa-minus"></i>
+          </button>
+        `;
+        optionsContainer.appendChild(optionDiv);
+        
+        // 绑定删除选项按钮
+        optionDiv.querySelector('.remove-option').addEventListener('click', function() {
+          optionDiv.remove();
+        });
+      });
+
+      // 表单提交
+      document.getElementById('add-question-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        addQuestion();
+      });
+
+      // 显示模态框
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    // 关闭模态框
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+
+    // 添加题目
+    function addQuestion() {
+      const text = document.getElementById('question-text').value;
+      const type = document.getElementById('question-type').value;
+      const required = document.getElementById('question-required').checked;
+      const jumpLogic = document.getElementById('jump-logic').value;
+      
+      let options = [];
+      if (type === 'single' || type === 'multiple') {
+        const optionInputs = document.querySelectorAll('.option-input');
+        optionInputs.forEach(input => {
+          if (input.value.trim()) {
+            options.push(input.value.trim());
+          }
+        });
+      }
+
+      const question = {
+        id: Date.now().toString(),
+        text: text,
+        type: type,
+        options: options,
+        required: required,
+        jumpLogic: jumpLogic
+      };
+
+      currentSurvey.questions.push(question);
+      renderQuestions();
+      closeModal();
+    }
+
+    // 渲染题目列表
+    function renderQuestions() {
+      const container = document.getElementById('questions-container');
+      if (currentSurvey.questions.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <i class="fa fa-question-circle text-2xl mb-2"></i>
+            <p>暂无题目，点击"添加题目"按钮开始</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentSurvey.questions.map((question, index) => `
+        <div class="question-card">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="flex items-center mb-2">
+                <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center mr-2">${index + 1}</span>
+                <h4 class="font-semibold">${question.text}</h4>
+                ${question.required ? '<span class="text-danger ml-2">*</span>' : ''}
+              </div>
+              <div class="ml-8">
+                ${question.type === 'single' || question.type === 'multiple' ? `
+                  <div class="space-y-2">
+                    ${question.options.map((option, optionIndex) => `
+                      <div class="flex items-center">
+                        <input type="${question.type === 'single' ? 'radio' : 'checkbox'}" disabled>
+                        <span class="ml-2">${option}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                ${question.type === 'text' ? '<input type="text" class="form-input" disabled placeholder="请输入答案">' : ''}
+                ${question.type === 'textarea' ? '<textarea class="form-input" rows="3" disabled placeholder="请输入答案"></textarea>' : ''}
+                ${question.type === 'date' ? '<input type="date" class="form-input" disabled>' : ''}
+                ${question.type === 'rating' ? `
+                  <div class="flex">
+                    ${[1, 2, 3, 4, 5].map(star => `
+                      <i class="fa fa-star star ${star <= 3 ? 'active' : ''}"></i>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                ${question.jumpLogic ? `<p class="text-xs text-gray-500 mt-2">跳转逻辑：选择后跳转到第 ${question.jumpLogic} 题</p>` : ''}
+              </div>
+            </div>
+            <div class="flex space-x-2">
+              <button class="btn-secondary text-sm" onclick="editQuestion('${question.id}')">
+                <i class="fa fa-edit mr-1"></i> 编辑
+              </button>
+              <button class="btn-danger text-sm" onclick="deleteQuestion('${question.id}')">
+                <i class="fa fa-trash mr-1"></i> 删除
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 编辑题目
+    function editQuestion(questionId) {
+      const question = currentSurvey.questions.find(q => q.id === questionId);
+      if (!question) return;
+
+      const modalContent = document.getElementById('modal-content');
+      modalContent.innerHTML = `
+        <div class="text-center mb-4">
+          <h3 class="text-lg font-bold">编辑题目</h3>
+        </div>
+        <form id="edit-question-form" class="space-y-4">
+          <div>
+            <label for="edit-question-text" class="form-label">题目内容</label>
+            <input type="text" id="edit-question-text" class="form-input" value="${question.text}" required>
+          </div>
+          <div>
+            <label for="edit-question-type" class="form-label">题目类型</label>
+            <select id="edit-question-type" class="form-input">
+              <option value="single" ${question.type === 'single' ? 'selected' : ''}>单选题</option>
+              <option value="multiple" ${question.type === 'multiple' ? 'selected' : ''}>多选题</option>
+              <option value="text" ${question.type === 'text' ? 'selected' : ''}>填空题</option>
+              <option value="textarea" ${question.type === 'textarea' ? 'selected' : ''}>简答题</option>
+              <option value="date" ${question.type === 'date' ? 'selected' : ''}>日期题</option>
+              <option value="rating" ${question.type === 'rating' ? 'selected' : ''}>评分题</option>
+            </select>
+          </div>
+          <div id="edit-options-container" class="space-y-2 ${question.type !== 'single' && question.type !== 'multiple' ? 'hidden' : ''}">
+            <label class="form-label">选项（单选题/多选题）</label>
+            ${question.options.map((option, index) => `
+              <div class="flex space-x-2">
+                <input type="text" class="form-input option-input" value="${option}">
+                <button type="button" class="btn-danger remove-option">
+                  <i class="fa fa-minus"></i>
+                </button>
+              </div>
+            `).join('')}
+            <div class="flex space-x-2">
+              <input type="text" class="form-input option-input" placeholder="请输入选项内容">
+              <button type="button" class="btn-secondary add-option">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" class="form-checkbox" id="edit-question-required" ${question.required ? 'checked' : ''}>
+              <span class="ml-2">必填</span>
+            </label>
+          </div>
+          <div>
+            <label for="edit-jump-logic" class="form-label">跳转逻辑</label>
+            <select id="edit-jump-logic" class="form-input">
+              <option value="">无跳转</option>
+              ${currentSurvey.questions.map((q, index) => `
+                <option value="${index + 1}" ${question.jumpLogic === (index + 1).toString() ? 'selected' : ''}>第 ${index + 1} 题</option>
+              `).join('')}
+            </select>
+            <p class="text-xs text-gray-500 mt-1">选择该题目后跳转到指定题目</p>
+          </div>
+          <div class="flex justify-end space-x-2">
+            <button type="button" class="btn-secondary" onclick="closeModal()">取消</button>
+            <button type="submit" class="btn-primary">确定</button>
+          </div>
+        </form>
+      `;
+
+      // 绑定事件
+      document.getElementById('edit-question-type').addEventListener('change', function() {
+        const optionsContainer = document.getElementById('edit-options-container');
+        if (this.value === 'single' || this.value === 'multiple') {
+          optionsContainer.classList.remove('hidden');
+        } else {
+          optionsContainer.classList.add('hidden');
+        }
+      });
+
+      // 添加选项按钮
+      document.querySelector('.add-option').addEventListener('click', function() {
+        const optionsContainer = document.getElementById('edit-options-container');
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'flex space-x-2';
+        optionDiv.innerHTML = `
+          <input type="text" class="form-input option-input" placeholder="请输入选项内容">
+          <button type="button" class="btn-danger remove-option">
+            <i class="fa fa-minus"></i>
+          </button>
+        `;
+        optionsContainer.appendChild(optionDiv);
+        
+        // 绑定删除选项按钮
+        optionDiv.querySelector('.remove-option').addEventListener('click', function() {
+          optionDiv.remove();
+        });
+      });
+
+      // 绑定删除选项按钮
+      document.querySelectorAll('.remove-option').forEach(button => {
+        button.addEventListener('click', function() {
+          this.parentElement.remove();
+        });
+      });
+
+      // 表单提交
+      document.getElementById('edit-question-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateQuestion(questionId);
+      });
+
+      // 显示模态框
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    // 更新题目
+    function updateQuestion(questionId) {
+      const question = currentSurvey.questions.find(q => q.id === questionId);
+      if (!question) return;
+
+      const text = document.getElementById('edit-question-text').value;
+      const type = document.getElementById('edit-question-type').value;
+      const required = document.getElementById('edit-question-required').checked;
+      const jumpLogic = document.getElementById('edit-jump-logic').value;
+      
+      let options = [];
+      if (type === 'single' || type === 'multiple') {
+        const optionInputs = document.querySelectorAll('.option-input');
+        optionInputs.forEach(input => {
+          if (input.value.trim()) {
+            options.push(input.value.trim());
+          }
+        });
+      }
+
+      question.text = text;
+      question.type = type;
+      question.options = options;
+      question.required = required;
+      question.jumpLogic = jumpLogic;
+
+      renderQuestions();
+      closeModal();
+    }
+
+    // 删除题目
+    function deleteQuestion(questionId) {
+      if (confirm('确定要删除这个题目吗？')) {
+        currentSurvey.questions = currentSurvey.questions.filter(q => q.id !== questionId);
+        renderQuestions();
+      }
+    }
+
+    // 保存问卷
+    function saveSurvey() {
+      currentSurvey.title = document.getElementById('survey-title').value;
+      currentSurvey.description = document.getElementById('survey-description').value;
+
+      // 保存到 Bmob 云端
+      try {
+        const Survey = Bmob.Query('Surveys');
+        
+        if (currentSurvey.bmobId) {
+          // 更新现有问卷
+          Survey.set('id', currentSurvey.bmobId);
+        }
+        
+        Survey.set('title', currentSurvey.title);
+        Survey.set('description', currentSurvey.description);
+        Survey.set('code', currentSurvey.code);
+        Survey.set('questions', currentSurvey.questions);
+        
+        Survey.save().then(res => {
+          currentSurvey.bmobId = res.objectId;
+          currentSurvey.id = res.code || res.objectId;
+          showToast('问卷保存成功');
+        }).catch(err => {
+          console.error('Bmob 保存失败:', err);
+          showToast('保存失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('保存失败，请重试');
+      }
+    }
+
+    // 导出问卷
+    function exportSurvey() {
+      const dataStr = JSON.stringify(currentSurvey, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${currentSurvey.title}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast('问卷导出成功');
+    }
+
+    // 导出问卷为DOCX
+    function exportSurveyDOCX() {
+      // 创建一个完整的HTML文档结构
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>${currentSurvey.title || '问卷'}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.5;
+              margin: 40px;
+            }
+            h1 {
+              text-align: center;
+              font-size: 24px;
+              margin-bottom: 10px;
+            }
+            h2 {
+              font-size: 18px;
+              margin-top: 30px;
+              margin-bottom: 15px;
+            }
+            .description {
+              text-align: center;
+              color: #666;
+              margin-bottom: 30px;
+            }
+            .question {
+              margin-bottom: 20px;
+              padding-bottom: 15px;
+              border-bottom: 1px solid #eee;
+            }
+            .question-title {
+              font-weight: bold;
+              margin-bottom: 10px;
+            }
+            .option {
+              margin-left: 20px;
+              margin-bottom: 5px;
+            }
+            .required {
+              color: red;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${currentSurvey.title || '问卷'}</h1>
+          <div class="description">${currentSurvey.description || ''}</div>
+          <h2>题目列表</h2>
+          ${currentSurvey.questions.map((question, index) => `
+            <div class="question">
+              <div class="question-title">
+                ${index + 1}. ${question.text} ${question.required ? '<span class="required">*</span>' : ''}
+              </div>
+              ${question.type === 'single' || question.type === 'multiple' ? `
+                ${question.options.map((option, optionIndex) => `
+                  <div class="option">${optionIndex + 1}. ${option}</div>
+                `).join('')}
+              ` : ''}
+              ${question.type === 'text' ? '<div class="option">（填空题）</div>' : ''}
+              ${question.type === 'textarea' ? '<div class="option">（简答题）</div>' : ''}
+              ${question.type === 'date' ? '<div class="option">（日期题）</div>' : ''}
+              ${question.type === 'rating' ? '<div class="option">（评分题）</div>' : ''}
+            </div>
+          `).join('')}
+        </body>
+        </html>
+      `;
+
+      // 生成DOCX文件
+      const converted = htmlDocx.asBlob(htmlContent);
+      saveAs(converted, `${currentSurvey.title || '问卷'}.docx`);
+      showToast('问卷导出成功');
+    }
+
+    // 加载问卷列表
+    function loadSurveys() {
+      // 从 Bmob 云端加载数据
+      try {
+        const Survey = Bmob.Query('Surveys');
+        Survey.find().then(res => {
+          const surveys = res || [];
+          const surveysList = document.getElementById('surveys-list');
+          if (surveys.length === 0) {
+            surveysList.innerHTML = `
+              <div class="text-center py-8 text-gray-500">
+                <i class="fa fa-folder-open text-2xl mb-2"></i>
+                <p>暂无保存的问卷</p>
+                <button class="btn-primary mt-4 flex items-center mx-auto" onclick="createNewSurvey()">
+                  <i class="fa fa-plus mr-2"></i> 创建新问卷
+                </button>
+              </div>
+            `;
+            return;
+          }
+
+          surveysList.innerHTML = surveys.map(survey => `
+            <div class="border rounded-lg p-4 shadow-hover">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold mb-1">${survey.title}</h3>
+                  <p class="text-sm text-gray-500 mb-1">编码: ${survey.code}</p>
+                  <p class="text-sm text-gray-500 mb-2">创建时间: ${new Date(survey.createdAt).toLocaleString()}</p>
+                  <p class="text-sm text-gray-500">答卷数: ${survey.responses || 0}</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary text-sm" onclick="editSurvey('${survey.objectId}')">
+                    <i class="fa fa-edit mr-1"></i> 编辑
+                  </button>
+                  <button class="btn-secondary text-sm" onclick="viewStats('${survey.objectId}')">
+                    <i class="fa fa-bar-chart mr-1"></i> 统计
+                  </button>
+                  <button class="btn-danger text-sm" onclick="deleteSurvey('${survey.objectId}')">
+                    <i class="fa fa-trash mr-1"></i> 删除
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 编辑问卷
+    function editSurvey(surveyId) {
+      // 从 Bmob 云端加载问卷数据
+      try {
+        const Survey = Bmob.Query('Surveys');
+        Survey.get(surveyId).then(survey => {
+          currentSurvey = {
+            id: survey.code || survey.objectId,
+            bmobId: survey.objectId,
+            title: survey.title,
+            description: survey.description || '',
+            code: survey.code,
+            questions: survey.questions || []
+          };
+          document.getElementById('survey-title').value = survey.title;
+          document.getElementById('survey-description').value = survey.description || '';
+          renderQuestions();
+          switchPage('editor');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 删除问卷
+    function deleteSurvey(surveyId) {
+      if (confirm('确定要删除这个问卷吗？')) {
+        // 从 Bmob 云端删除问卷
+        try {
+          const Survey = Bmob.Query('Surveys');
+          Survey.set('id', surveyId);
+          Survey.destroy().then(res => {
+            loadSurveys();
+            showToast('问卷删除成功');
+          }).catch(err => {
+            console.error('删除失败:', err);
+            showToast('删除失败，请重试');
+          });
+        } catch (error) {
+          console.error('Bmob 初始化失败:', error);
+          showToast('删除失败，请重试');
+        }
+      }
+    }
+
+    // 查看统计
+    function viewStats(surveyId) {
+      // 从 Bmob 云端加载问卷数据
+      try {
+        const Survey = Bmob.Query('Surveys');
+        Survey.get(surveyId).then(survey => {
+          currentSurvey = {
+            id: survey.code || survey.objectId,
+            bmobId: survey.objectId,
+            title: survey.title,
+            description: survey.description || '',
+            code: survey.code,
+            questions: survey.questions || []
+          };
+          renderStats();
+          switchPage('stats');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 加载统计问卷列表
+    function loadSurveysForStats() {
+      // 从 Bmob 云端加载数据
+      try {
+        const Survey = Bmob.Query('Surveys');
+        Survey.find().then(res => {
+          const surveys = res || [];
+          const statsSurveysList = document.getElementById('stats-surveys-list');
+          statsSurveysList.innerHTML = `
+            <div class="space-y-4">
+              ${surveys.length === 0 ? `
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fa fa-folder-open text-2xl mb-2"></i>
+                  <p>暂无保存的问卷</p>
+                </div>
+              ` : `
+                ${surveys.map(survey => `
+                  <div class="border rounded-lg p-4 shadow-hover cursor-pointer" onclick="viewStats('${survey.objectId}')">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <h3 class="font-semibold mb-1">${survey.title}</h3>
+                        <p class="text-sm text-gray-500 mb-1">创建时间: ${new Date(survey.createdAt).toLocaleString()}</p>
+                        <p class="text-sm text-gray-500">答卷数: ${survey.responses || 0}</p>
+                      </div>
+                      <div>
+                        <i class="fa fa-arrow-right text-primary"></i>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              `}
+            </div>
+          `;
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 渲染统计数据
+    function renderStats() {
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+          const statsDetails = document.getElementById('stats-details');
+
+          // 计算统计数据
+          const stats = {};
+          currentSurvey.questions.forEach(question => {
+            stats[question.id] = {
+              text: question.text,
+              type: question.type,
+              options: question.options || [],
+              answers: []
+            };
+          });
+
+          surveyResponses.forEach(response => {
+            Object.keys(response.answers).forEach(questionId => {
+              if (stats[questionId]) {
+                stats[questionId].answers.push(response.answers[questionId]);
+              }
+            });
+          });
+
+          // 生成统计 HTML
+          let statsHtml = `
+            <h3 class="text-lg font-semibold mb-4">${currentSurvey.title} - 统计结果</h3>
+            <div class="space-y-6">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="text-gray-600">总答卷数: <span class="font-semibold">${surveyResponses.length}</span></p>
+                  <p class="text-gray-600">问卷描述: ${currentSurvey.description || '无'}</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary flex items-center" onclick="exportResponsesCSV()">
+                    <i class="fa fa-file-excel-o mr-2"></i> 导出CSV
+                  </button>
+                </div>
+              </div>
+              
+              <!-- 用户答题情况 -->
+              <div>
+                <div class="flex justify-between items-center mb-4">
+                  <h4 class="font-semibold">用户答题情况</h4>
+                  <button id="toggle-user-list" class="text-primary text-sm flex items-center">
+                    <i class="fa fa-chevron-down mr-1"></i> 展开
+                  </button>
+                </div>
+                <div id="user-list-container" class="hidden border rounded-lg p-4 bg-gray-50">
+                  <!-- 搜索框 -->
+                  <div class="flex space-x-2 mb-4">
+                    <input type="text" id="user-search-surname" class="form-input" placeholder="搜索姓氏">
+                    <input type="month" id="user-search-birthdate" class="form-input">
+                    <button class="btn-secondary" onclick="filterUsers()">
+                      <i class="fa fa-search mr-1"></i> 搜索
+                    </button>
+                    <button class="btn-secondary" onclick="resetUserFilter()">
+                      <i class="fa fa-refresh mr-1"></i> 重置
+                    </button>
+                  </div>
+                  <div id="user-list" class="space-y-2">
+                    ${surveyResponses.length === 0 ? `
+                      <p class="text-gray-600">暂无用户答题记录</p>
+                    ` : `
+                      ${surveyResponses.map((response, index) => `
+                        <div class="border rounded p-2">
+                          <div class="flex justify-between items-start">
+                            <div>
+                              <p class="font-medium">${response.userName} (${response.userBirthdate})</p>
+                              <p class="text-sm text-gray-500">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
+                            </div>
+                            <button class="text-primary text-sm" onclick="showUserAnswers(${index})">
+                              查看答案
+                            </button>
+                          </div>
+                        </div>
+                      `).join('')}
+                    `}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 题目统计 -->
+              ${currentSurvey.questions.map((question, index) => {
+                const questionStats = stats[question.id];
+                let questionHtml = `
+                  <div class="border rounded-lg p-4">
+                    <h4 class="font-semibold mb-3">${index + 1}. ${question.text}</h4>
+                `;
+
+                if (question.type === 'single' || question.type === 'multiple') {
+                  // 选择题统计
+                  const optionCounts = {};
+                  question.options.forEach(option => {
+                    optionCounts[option] = 0;
+                  });
+                  questionStats.answers.forEach(answer => {
+                    if (Array.isArray(answer)) {
+                      // 多选题
+                      answer.forEach(a => {
+                        if (optionCounts[a] !== undefined) {
+                          optionCounts[a]++;
+                        }
+                      });
+                    } else {
+                      // 单选题
+                      if (optionCounts[answer] !== undefined) {
+                        optionCounts[answer]++;
+                      }
+                    }
+                  });
+
+                  questionHtml += `
+                    <div class="space-y-2">
+                      ${question.options.map(option => {
+                        const count = optionCounts[option] || 0;
+                        const percentage = surveyResponses.length > 0 ? Math.round((count / surveyResponses.length) * 100) : 0;
+                        return `
+                          <div>
+                            <div class="flex justify-between mb-1">
+                              <span>${option}</span>
+                              <span>${count} (${percentage}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                              <div class="bg-primary h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>
+                  `;
+                } else if (question.type === 'rating') {
+                  // 评分题统计
+                  const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                  questionStats.answers.forEach(answer => {
+                    if (ratingCounts[answer] !== undefined) {
+                      ratingCounts[answer]++;
+                    }
+                  });
+
+                  questionHtml += `
+                    <div class="space-y-2">
+                      ${Object.entries(ratingCounts).map(([rating, count]) => {
+                        const percentage = surveyResponses.length > 0 ? Math.round((count / surveyResponses.length) * 100) : 0;
+                        return `
+                          <div>
+                            <div class="flex justify-between mb-1">
+                              <span>${'★'.repeat(parseInt(rating))}${'☆'.repeat(5 - parseInt(rating))}</span>
+                              <span>${count} (${percentage}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                              <div class="bg-primary h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>
+                  `;
+                } else {
+                  // 填空题、简答题、日期题
+                  questionHtml += `
+                    <div class="space-y-2">
+                      ${questionStats.answers.length === 0 ? `
+                        <p class="text-gray-600">暂无答案</p>
+                      ` : `
+                        ${questionStats.answers.map((answer, answerIndex) => `
+                          <div class="border rounded p-2">
+                            <p class="text-sm">${answer || '无'}</p>
+                          </div>
+                        `).join('')}
+                      `}
+                    </div>
+                  `;
+                }
+
+                questionHtml += `</div>`;
+                return questionHtml;
+              }).join('')}
+            </div>
+          `;
+
+          statsDetails.innerHTML = statsHtml;
+          statsDetails.classList.remove('hidden');
+
+          // 绑定事件
+          document.getElementById('toggle-user-list').addEventListener('click', function() {
+            const userListContainer = document.getElementById('user-list-container');
+            const icon = this.querySelector('i');
+            if (userListContainer.classList.contains('hidden')) {
+              userListContainer.classList.remove('hidden');
+              icon.classList.remove('fa-chevron-down');
+              icon.classList.add('fa-chevron-up');
+              this.innerHTML = '<i class="fa fa-chevron-up mr-1"></i> 收起';
+            } else {
+              userListContainer.classList.add('hidden');
+              icon.classList.remove('fa-chevron-up');
+              icon.classList.add('fa-chevron-down');
+              this.innerHTML = '<i class="fa fa-chevron-down mr-1"></i> 展开';
+            }
+          });
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 显示用户答案
+    function showUserAnswers(index) {
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+          const response = surveyResponses[index];
+          if (!response) return;
+
+          const modalContent = document.getElementById('modal-content');
+          let answersHtml = `
+            <div class="text-center mb-4">
+              <h3 class="text-lg font-bold">${response.userName} 的答案</h3>
+              <p class="text-sm text-gray-600">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
+            </div>
+            <div class="space-y-4">
+              ${currentSurvey.questions.map((question, qIndex) => {
+                const answer = response.answers[question.id];
+                let answerText = '';
+                if (Array.isArray(answer)) {
+                  answerText = answer.join('、');
+                } else if (question.type === 'rating') {
+                  answerText = '★'.repeat(parseInt(answer)) + '☆'.repeat(5 - parseInt(answer));
+                } else {
+                  answerText = answer || '未填写';
+                }
+                return `
+                  <div>
+                    <p class="font-medium mb-1">${qIndex + 1}. ${question.text}</p>
+                    <p class="text-gray-600">${answerText}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <div class="mt-4 flex justify-end">
+              <button class="btn-secondary" onclick="closeModal()">关闭</button>
+            </div>
+          `;
+          modalContent.innerHTML = answersHtml;
+          document.getElementById('modal').classList.remove('hidden');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 过滤用户
+    function filterUsers() {
+      const surname = document.getElementById('user-search-surname').value.toLowerCase();
+      const birthdate = document.getElementById('user-search-birthdate').value;
+      
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+
+          const filteredResponses = surveyResponses.filter(response => {
+            const matchSurname = !surname || response.userName.toLowerCase().includes(surname);
+            const matchBirthdate = !birthdate || response.userBirthdate === birthdate;
+            return matchSurname && matchBirthdate;
+          });
+
+          const userList = document.getElementById('user-list');
+          userList.innerHTML = `
+            ${filteredResponses.length === 0 ? `
+              <p class="text-gray-600">暂无匹配的用户</p>
+            ` : `
+              ${filteredResponses.map((response, index) => {
+                const originalIndex = surveyResponses.findIndex(r => r.objectId === response.objectId);
+                return `
+                  <div class="border rounded p-2">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <p class="font-medium">${response.userName} (${response.userBirthdate})</p>
+                        <p class="text-sm text-gray-500">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
+                      </div>
+                      <button class="text-primary text-sm" onclick="showUserAnswers(${originalIndex})">
+                        查看答案
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            `}
+          `;
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 重置用户过滤器
+    function resetUserFilter() {
+      document.getElementById('user-search-surname').value = '';
+      document.getElementById('user-search-birthdate').value = '';
+      filterUsers();
+    }
+
+    // 导出答卷为CSV
+    function exportResponsesCSV() {
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+
+          if (surveyResponses.length === 0) {
+            showToast('暂无答卷数据', 'error');
+            return;
+          }
+
+          // 生成CSV头部
+          let csvContent = '姓名,出生年月,提交时间';
+          currentSurvey.questions.forEach(question => {
+            csvContent += `,${question.text}`;
+          });
+          csvContent += '\n';
+
+          // 生成CSV数据行
+          surveyResponses.forEach(response => {
+            csvContent += `${response.userName},${response.userBirthdate},${response.submittedAt}`;
+            currentSurvey.questions.forEach(question => {
+              const answer = response.answers[question.id];
+              let answerText = '';
+              if (Array.isArray(answer)) {
+                answerText = '"' + answer.join('、') + '"';
+              } else if (answer) {
+                answerText = '"' + answer.replace(/"/g, '""') + '"';
+              }
+              csvContent += `,${answerText}`;
+            });
+            csvContent += '\n';
+          });
+
+          // 下载CSV文件
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          saveAs(blob, `${currentSurvey.title}_答卷.csv`);
+          showToast('答卷导出成功');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 显示提示信息
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <div class="flex items-center">
+          <i class="fa ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-[-20px]');
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
