@@ -444,7 +444,12 @@
       // 初始化 Bmob（使用 try-catch 避免加载失败影响其他功能）
       try {
         if (typeof Bmob !== 'undefined') {
-          Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "10cb86ef6e8dc0ef");
+          // 尝试使用对象形式初始化
+          Bmob.initialize({
+            appId: "60d1097ef48b12f4fb708abb30bbca4b",
+            secretKey: "10cb86ef6e8dc0ef",
+            restAPIKey: "c4306f2d1c48cea5e10b6969cc8162e4"
+          });
           console.log('Bmob 初始化成功');
         } else {
           console.warn('Bmob SDK 未加载，将使用本地存储');
