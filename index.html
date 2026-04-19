@@ -444,12 +444,8 @@
       // 初始化 Bmob（使用 try-catch 避免加载失败影响其他功能）
       try {
         if (typeof Bmob !== 'undefined') {
-          // 尝试使用对象形式初始化
-          Bmob.initialize({
-            appId: "60d1097ef48b12f4fb708abb30bbca4b",
-            secretKey: "10cb86ef6e8dc0ef",
-            restAPIKey: "c4306f2d1c48cea5e10b6969cc8162e4"
-          });
+          // 使用正确的参数顺序初始化
+          Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "c4306f2d1c48cea5e10b6969cc8162e4");
           console.log('Bmob 初始化成功');
         } else {
           console.warn('Bmob SDK 未加载，将使用本地存储');
@@ -507,6 +503,17 @@
         loadSurveys();
       } else if (page === 'stats') {
         loadSurveysForStats();
+      } else if (page === 'editor') {
+        // 重新绑定生成编码按钮的事件监听器
+        setTimeout(() => {
+          const generateCodeBtn = document.getElementById('generate-code');
+          if (generateCodeBtn) {
+            // 先移除可能存在的事件监听器
+            generateCodeBtn.removeEventListener('click', generateCode);
+            // 重新绑定事件监听器
+            generateCodeBtn.addEventListener('click', generateCode);
+          }
+        }, 100);
       }
     }
 
@@ -558,7 +565,10 @@
       });
       
       // 生成问卷编码按钮
-      document.getElementById('generate-code').addEventListener('click', generateCode);
+      const generateCodeBtn = document.getElementById('generate-code');
+      if (generateCodeBtn) {
+        generateCodeBtn.addEventListener('click', generateCode);
+      }
       document.getElementById('btn-save').addEventListener('click', saveSurvey);
       document.getElementById('btn-export').addEventListener('click', exportSurvey);
       document.getElementById('btn-export-docx').addEventListener('click', exportSurveyDOCX);
