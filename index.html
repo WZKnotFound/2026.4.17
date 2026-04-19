@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>简易问卷助手</title>
+  <title>问卷系统 - 管理员</title>
   <!-- Tailwind CSS v3 -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
@@ -11,7 +11,7 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
   <!-- Bmob SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/hydrogen-js-sdk@2.5.30/dist/Bmob-2.5.30.min.js"></script>
+  <script src="https://unpkg.com/bmob-js-sdk@2.5.0/dist/Bmob-2.5.0.min.js"></script>
   <!-- html-docx-js -->
   <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
   <!-- FileSaver.js -->
@@ -109,29 +109,14 @@
       }
     }
   </style>
+  <script>
+    // 初始化 Bmob
+    Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "c4306f2d1c48cea5e10b6969cc8162e4");
+  </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <!-- 欢迎页面 -->
-  <div id="welcome-page" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-    <div class="text-center p-8 max-w-md mx-auto bg-white rounded-xl shadow-lg">
-      <div class="mb-6">
-        <i class="fa fa-question-circle text-5xl text-primary mb-4"></i>
-        <h1 class="text-2xl font-bold mb-2">简易问卷助手</h1>
-        <p class="text-gray-600">创建、管理和填写问卷</p>
-      </div>
-      <div class="space-y-4">
-        <button id="btn-fill-survey" class="btn-primary w-full py-3 flex items-center justify-center">
-          <i class="fa fa-pencil mr-2"></i> 我要填表
-        </button>
-        <button id="btn-admin-login" class="btn-secondary w-full py-3 flex items-center justify-center">
-          <i class="fa fa-user mr-2"></i> 我是管理员
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- 管理员登录页面 -->
-  <div id="admin-login-page" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div id="admin-login" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
       <div class="text-center mb-6">
         <i class="fa fa-user-circle text-4xl text-primary mb-4"></i>
@@ -154,32 +139,6 @@
         <button type="submit" class="btn-primary w-full py-2">
           <i class="fa fa-sign-in mr-2"></i> 登录
         </button>
-        <button type="button" id="back-to-welcome" class="w-full py-2 text-gray-600 hover:text-primary">
-          <i class="fa fa-arrow-left mr-2"></i> 返回首页
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- 填写问卷编码页面 -->
-  <div id="fill-code-page" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-    <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
-      <div class="text-center mb-6">
-        <i class="fa fa-code text-4xl text-primary mb-4"></i>
-        <h2 class="text-xl font-bold">填写问卷编码</h2>
-        <p class="text-gray-600">请输入问卷编码以开始填写</p>
-      </div>
-      <form id="code-form" class="space-y-4">
-        <div>
-          <label for="survey-code" class="form-label">问卷编码</label>
-          <input type="text" id="survey-code" class="form-input" placeholder="请输入问卷编码" required>
-        </div>
-        <button type="submit" class="btn-primary w-full py-2">
-          <i class="fa fa-arrow-right mr-2"></i> 开始填写
-        </button>
-        <button type="button" id="back-to-welcome-from-code" class="w-full py-2 text-gray-600 hover:text-primary">
-          <i class="fa fa-arrow-left mr-2"></i> 返回首页
-        </button>
       </form>
     </div>
   </div>
@@ -191,7 +150,7 @@
       <div class="container mx-auto px-4 py-3 flex justify-between items-center">
         <div class="flex items-center space-x-2">
           <i class="fa fa-question-circle text-primary text-2xl"></i>
-          <h1 class="text-xl font-bold">简易问卷助手</h1>
+          <h1 class="text-xl font-bold">问卷系统 - 管理员</h1>
         </div>
         <div class="flex items-center space-x-4">
           <button id="btn-surveys" class="btn-secondary">
@@ -210,7 +169,7 @@
     <!-- 内容区域 -->
     <div class="container mx-auto px-4 py-6">
       <!-- 编辑器页面 -->
-      <div id="editor-page" class="card">
+      <div id="editor-content" class="card">
         <h2 class="text-xl font-bold mb-6">问卷编辑器</h2>
         <div class="space-y-6">
           <!-- 问卷基本信息 -->
@@ -222,10 +181,6 @@
             <div>
               <label for="survey-description" class="form-label">问卷描述</label>
               <textarea id="survey-description" class="form-input" rows="3" placeholder="请输入问卷描述"></textarea>
-            </div>
-            <div>
-              <label for="survey-code" class="form-label">问卷编码</label>
-              <input type="text" id="survey-code" class="form-input" placeholder="请输入问卷编码" required>
             </div>
           </div>
 
@@ -266,24 +221,17 @@
       </div>
 
       <!-- 问卷列表页面 -->
-      <div id="surveys-page" class="hidden">
+      <div id="surveys-content" class="hidden">
         <h2 class="text-xl font-bold mb-6">我的问卷</h2>
         <div id="surveys-list">
           <!-- 问卷列表将通过JS动态添加 -->
         </div>
       </div>
 
-      <!-- 填写问卷页面 -->
-      <div id="fill-page" class="hidden">
-        <div id="fill-survey" class="card">
-          <!-- 问卷内容将通过JS动态添加 -->
-        </div>
-      </div>
-
       <!-- 统计页面 -->
-      <div id="stats-page" class="hidden">
+      <div id="stats-content" class="hidden">
         <h2 class="text-xl font-bold mb-6">数据统计</h2>
-        <div id="stats-surveys-list">
+        <div id="stats-surveys-list" class="space-y-4 mb-6">
           <!-- 问卷列表将通过JS动态添加 -->
         </div>
         <div id="stats-details" class="hidden mt-6 card">
@@ -308,95 +256,30 @@
       id: '',
       title: '',
       description: '',
-      code: '',
       questions: []
     };
-    let currentPage = 'editor';
-    let isAdmin = false;
-
-    // 初始化 Bmob
-    Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "c4306f2d1c48cea5e10b6969cc8162e4");
+    let currentPage = 'surveys';
 
     // 初始化
     document.addEventListener('DOMContentLoaded', function() {
       initEventListeners();
+      loadSurveys();
     });
-
-    // 显示欢迎页面
-    function showWelcomePage() {
-      document.getElementById('welcome-page').classList.remove('hidden');
-      document.getElementById('admin-login-page').classList.add('hidden');
-      document.getElementById('fill-code-page').classList.add('hidden');
-      document.getElementById('main-content').classList.add('hidden');
-    }
-
-    // 显示管理员登录页面
-    function showAdminLoginPage() {
-      document.getElementById('welcome-page').classList.add('hidden');
-      document.getElementById('admin-login-page').classList.remove('hidden');
-      document.getElementById('fill-code-page').classList.add('hidden');
-      document.getElementById('main-content').classList.add('hidden');
-    }
-
-    // 显示填写问卷编码页面
-    function showFillPage() {
-      document.getElementById('welcome-page').classList.add('hidden');
-      document.getElementById('admin-login-page').classList.add('hidden');
-      document.getElementById('fill-code-page').classList.remove('hidden');
-      document.getElementById('main-content').classList.add('hidden');
-    }
-
-    // 显示主界面
-    function showMainContent() {
-      document.getElementById('welcome-page').classList.add('hidden');
-      document.getElementById('admin-login-page').classList.add('hidden');
-      document.getElementById('fill-code-page').classList.add('hidden');
-      document.getElementById('main-content').classList.remove('hidden');
-    }
-
-    // 切换页面
-    function switchPage(page) {
-      currentPage = page;
-      document.getElementById('editor-page').classList.add('hidden');
-      document.getElementById('surveys-page').classList.add('hidden');
-      document.getElementById('fill-page').classList.add('hidden');
-      document.getElementById('stats-page').classList.add('hidden');
-      document.getElementById(`${page}-page`).classList.remove('hidden');
-
-      if (page === 'surveys') {
-        loadSurveys();
-      } else if (page === 'stats') {
-        loadSurveysForStats();
-      }
-    }
 
     // 初始化事件监听器
     function initEventListeners() {
-      // 欢迎页面按钮
-      document.getElementById('btn-fill-survey').addEventListener('click', showFillPage);
-      document.getElementById('btn-admin-login').addEventListener('click', showAdminLoginPage);
-
-      // 管理员登录页面按钮
-      document.getElementById('back-to-welcome').addEventListener('click', showWelcomePage);
+      // 登录表单
       document.getElementById('login-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
         if (username === 'admin' && password === '123456') {
-          isAdmin = true;
-          showMainContent();
+          document.getElementById('admin-login').classList.add('hidden');
+          document.getElementById('main-content').classList.remove('hidden');
           switchPage('surveys');
         } else {
           showToast('账号或密码错误', 'error');
         }
-      });
-
-      // 填写问卷编码页面按钮
-      document.getElementById('back-to-welcome-from-code').addEventListener('click', showWelcomePage);
-      document.getElementById('code-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const code = document.getElementById('survey-code').value;
-        submitSurveyCode(code);
       });
 
       // 导航栏按钮
@@ -406,7 +289,13 @@
       document.getElementById('btn-create').addEventListener('click', function() {
         createNewSurvey();
       });
-      document.getElementById('btn-logout').addEventListener('click', logout);
+      document.getElementById('btn-logout').addEventListener('click', function() {
+        document.getElementById('main-content').classList.add('hidden');
+        document.getElementById('admin-login').classList.remove('hidden');
+        // 清空登录输入框
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+      });
 
       // 编辑器页面按钮
       document.getElementById('add-question').addEventListener('click', openAddQuestionModal);
@@ -421,6 +310,21 @@
       document.getElementById('btn-export-docx').addEventListener('click', exportSurveyDOCX);
     }
 
+    // 切换页面
+    function switchPage(page) {
+      currentPage = page;
+      document.getElementById('editor-content').classList.add('hidden');
+      document.getElementById('surveys-content').classList.add('hidden');
+      document.getElementById('stats-content').classList.add('hidden');
+      document.getElementById(`${page}-content`).classList.remove('hidden');
+
+      if (page === 'surveys') {
+        loadSurveys();
+      } else if (page === 'stats') {
+        loadSurveysForStats();
+      }
+    }
+
     // 创建新问卷
     function createNewSurvey() {
       currentSurvey = {
@@ -432,7 +336,6 @@
       };
       document.getElementById('survey-title').value = '';
       document.getElementById('survey-description').value = '';
-      document.getElementById('survey-code').value = '';
       renderQuestions();
       switchPage('editor');
     }
@@ -775,22 +678,8 @@
 
     // 保存问卷
     function saveSurvey() {
-      // 更新问卷信息
       currentSurvey.title = document.getElementById('survey-title').value;
       currentSurvey.description = document.getElementById('survey-description').value;
-      currentSurvey.code = document.getElementById('survey-code').value;
-
-      // 保存到本地存储（作为备份）
-      const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const existingIndex = surveys.findIndex(s => s.id === currentSurvey.id);
-
-      if (existingIndex >= 0) {
-        surveys[existingIndex] = currentSurvey;
-      } else {
-        surveys.push(currentSurvey);
-      }
-
-      localStorage.setItem('surveys', JSON.stringify(surveys));
 
       // 保存到 Bmob 云端
       try {
@@ -808,14 +697,15 @@
         
         Survey.save().then(res => {
           currentSurvey.bmobId = res.objectId;
-          showToast('问卷保存成功（已同步到云端）');
+          currentSurvey.id = res.code || res.objectId;
+          showToast('问卷保存成功');
         }).catch(err => {
           console.error('Bmob 保存失败:', err);
-          showToast('问卷保存成功（仅本地）');
+          showToast('保存失败，请重试');
         });
       } catch (error) {
         console.error('Bmob 初始化失败:', error);
-        showToast('问卷保存成功（仅本地）');
+        showToast('保存失败，请重试');
       }
     }
 
@@ -912,592 +802,550 @@
 
     // 加载问卷列表
     function loadSurveys() {
-      // 从本地存储加载（作为备份）
-      let surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const trash = JSON.parse(localStorage.getItem('trash') || '[]');
-      const surveysList = document.getElementById('surveys-list');
-
       // 从 Bmob 云端加载数据
       try {
         const Survey = Bmob.Query('Surveys');
         Survey.find().then(res => {
-          if (res && res.length > 0) {
-            // 将 Bmob 数据转换为本地格式
-            const cloudSurveys = res.map(item => ({
-              id: item.code || item.objectId,
-              bmobId: item.objectId,
-              title: item.title,
-              description: item.description,
-              code: item.code,
-              questions: item.questions || [],
-              createdAt: item.createdAt,
-              updatedAt: item.updatedAt
-            }));
-            
-            // 更新本地存储
-            localStorage.setItem('surveys', JSON.stringify(cloudSurveys));
-            surveys = cloudSurveys;
-            
-            // 重新渲染问卷列表
-            renderSurveysList(surveys, trash, surveysList);
-            showToast('已从云端同步问卷数据');
+          const surveys = res || [];
+          const surveysList = document.getElementById('surveys-list');
+          if (surveys.length === 0) {
+            surveysList.innerHTML = `
+              <div class="text-center py-8 text-gray-500">
+                <i class="fa fa-folder-open text-2xl mb-2"></i>
+                <p>暂无保存的问卷</p>
+                <button class="btn-primary mt-4 flex items-center mx-auto" onclick="createNewSurvey()">
+                  <i class="fa fa-plus mr-2"></i> 创建新问卷
+                </button>
+              </div>
+            `;
+            return;
           }
+
+          surveysList.innerHTML = surveys.map(survey => `
+            <div class="border rounded-lg p-4 shadow-hover">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold mb-1">${survey.title}</h3>
+                  <p class="text-sm text-gray-500 mb-1">编码: ${survey.code}</p>
+                  <p class="text-sm text-gray-500 mb-2">创建时间: ${new Date(survey.createdAt).toLocaleString()}</p>
+                  <p class="text-sm text-gray-500">答卷数: ${survey.responses || 0}</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary text-sm" onclick="editSurvey('${survey.objectId}')">
+                    <i class="fa fa-edit mr-1"></i> 编辑
+                  </button>
+                  <button class="btn-secondary text-sm" onclick="viewStats('${survey.objectId}')">
+                    <i class="fa fa-bar-chart mr-1"></i> 统计
+                  </button>
+                  <button class="btn-danger text-sm" onclick="deleteSurvey('${survey.objectId}')">
+                    <i class="fa fa-trash mr-1"></i> 删除
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('');
         }).catch(err => {
-          console.error('Bmob 加载失败:', err);
-          // 加载失败时使用本地数据
-          renderSurveysList(surveys, trash, surveysList);
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
         });
       } catch (error) {
         console.error('Bmob 初始化失败:', error);
-        // 初始化失败时使用本地数据
-        renderSurveysList(surveys, trash, surveysList);
-      }
-
-      // 先显示本地数据，稍后会被云端数据覆盖（如果成功）
-      renderSurveysList(surveys, trash, surveysList);
-    }
-
-    // 渲染问卷列表
-    function renderSurveysList(surveys, trash, surveysList) {
-
-      surveysList.innerHTML = `
-        <!-- 标签页 -->
-        <div class="mb-6 border-b">
-          <ul class="flex space-x-8" id="survey-tabs">
-            <li>
-              <button class="py-2 border-b-2 border-primary text-primary font-medium" data-tab="active">我的问卷</button>
-            </li>
-            <li>
-              <button class="py-2 border-b-2 border-transparent text-gray-500 hover:text-primary" data-tab="trash">垃圾站</button>
-            </li>
-          </ul>
-        </div>
-        
-        <!-- 我的问卷 -->
-        <div id="active-surveys" class="tab-content">
-          ${surveys.length === 0 ? `
-            <div class="text-center py-12">
-              <i class="fa fa-folder-open text-4xl text-gray-400 mb-4"></i>
-              <p class="text-gray-600">暂无保存的问卷</p>
-              <button id="create-new-survey" class="btn-primary mt-4 flex items-center mx-auto">
-                <i class="fa fa-plus mr-2"></i> 创建新问卷
-              </button>
-            </div>
-          ` : `
-            ${surveys.map(survey => `
-              <div class="border rounded-lg p-4 shadow-hover">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="font-semibold mb-1">${survey.title}</h3>
-                    <p class="text-sm text-gray-500 mb-1">编码: ${survey.code}</p>
-                    <p class="text-sm text-gray-500 mb-1">创建时间: ${new Date(survey.createdAt).toLocaleString()}</p>
-                    <p class="text-sm text-gray-500">答卷数: ${survey.responses || 0}</p>
-                  </div>
-                  <div class="flex space-x-2">
-                    <button class="btn-secondary text-sm" onclick="previewSurvey('${survey.id}')">
-                      <i class="fa fa-eye mr-1"></i> 预览
-                    </button>
-                    <button class="btn-primary text-sm" onclick="editSurvey('${survey.id}')">
-                      <i class="fa fa-edit mr-1"></i> 编辑
-                    </button>
-                    <button class="btn-secondary text-sm" onclick="copySurvey('${survey.id}')">
-                      <i class="fa fa-copy mr-1"></i> 复制
-                    </button>
-                    <button class="btn-danger text-sm" onclick="deleteSurvey('${survey.id}')">
-                      <i class="fa fa-trash mr-1"></i> 删除
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          `}
-        </div>
-        
-        <!-- 垃圾站 -->
-        <div id="trash-surveys" class="tab-content hidden">
-          ${trash.length === 0 ? `
-            <div class="text-center py-12">
-              <i class="fa fa-trash text-4xl text-gray-400 mb-4"></i>
-              <p class="text-gray-600">垃圾站为空</p>
-            </div>
-          ` : `
-            ${trash.map(survey => `
-              <div class="border rounded-lg p-4 shadow-hover bg-gray-50">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="font-semibold mb-1">${survey.title}</h3>
-                    <p class="text-sm text-gray-500 mb-1">编码: ${survey.code}</p>
-                    <p class="text-sm text-gray-500 mb-1">创建时间: ${new Date(survey.createdAt).toLocaleString()}</p>
-                    <p class="text-sm text-gray-500 mb-1">删除时间: ${new Date(survey.deletedAt).toLocaleString()}</p>
-                    <p class="text-sm text-gray-500">答卷数: ${survey.responses || 0}</p>
-                  </div>
-                  <div class="flex space-x-2">
-                    <button class="btn-secondary text-sm" onclick="restoreSurvey('${survey.id}')">
-                      <i class="fa fa-undo mr-1"></i> 恢复
-                    </button>
-                    <button class="btn-danger text-sm" onclick="permanentlyDeleteSurvey('${survey.id}')">
-                      <i class="fa fa-trash mr-1"></i> 彻底删除
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          `}
-        </div>
-      `;
-
-      // 绑定标签页切换事件
-      document.querySelectorAll('#survey-tabs button').forEach(tab => {
-        tab.addEventListener('click', function() {
-          const tabName = this.getAttribute('data-tab');
-          
-          // 更新标签页状态
-          document.querySelectorAll('#survey-tabs button').forEach(t => {
-            t.classList.remove('border-primary', 'text-primary');
-            t.classList.add('border-transparent', 'text-gray-500');
-          });
-          this.classList.remove('border-transparent', 'text-gray-500');
-          this.classList.add('border-primary', 'text-primary');
-          
-          // 显示对应内容
-          document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.add('hidden');
-          });
-          document.getElementById(`${tabName}-surveys`).classList.remove('hidden');
-        });
-      });
-
-      // 绑定创建新问卷事件
-      const createBtn = document.getElementById('create-new-survey');
-      if (createBtn) {
-        createBtn.addEventListener('click', function() {
-          createNewSurvey();
-        });
-      }
-    }
-
-    // 恢复问卷
-    function restoreSurvey(id) {
-      const trash = JSON.parse(localStorage.getItem('trash') || '[]');
-      const surveyToRestore = trash.find(s => s.id === id);
-      if (surveyToRestore) {
-        // 从垃圾站移除
-        const filteredTrash = trash.filter(s => s.id !== id);
-        localStorage.setItem('trash', JSON.stringify(filteredTrash));
-        
-        // 恢复到问卷列表
-        const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-        delete surveyToRestore.deletedAt; // 移除删除时间
-        surveys.push(surveyToRestore);
-        localStorage.setItem('surveys', JSON.stringify(surveys));
-        
-        loadSurveys();
-        showToast('问卷恢复成功');
-      }
-    }
-
-    // 彻底删除问卷
-    function permanentlyDeleteSurvey(id) {
-      if (confirm('确定要彻底删除这个问卷吗？此操作不可恢复。')) {
-        const trash = JSON.parse(localStorage.getItem('trash') || '[]');
-        const filteredTrash = trash.filter(s => s.id !== id);
-        localStorage.setItem('trash', JSON.stringify(filteredTrash));
-        loadSurveys();
-        showToast('问卷彻底删除成功');
-      }
-    }
-
-    // 预览问卷
-    function previewSurvey(id) {
-      const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const survey = surveys.find(s => s.id === id);
-      if (survey) {
-        currentSurvey = survey;
-        renderFillSurvey();
-        switchPage('fill');
+        showToast('加载失败，请重试');
       }
     }
 
     // 编辑问卷
-    function editSurvey(id) {
-      const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const survey = surveys.find(s => s.id === id);
-      if (survey) {
-        currentSurvey = survey;
-        document.getElementById('survey-title').value = survey.title;
-        document.getElementById('survey-description').value = survey.description || '';
-        document.getElementById('survey-code').value = survey.code;
-        renderQuestions();
-        switchPage('editor');
-      }
-    }
-
-    // 复制问卷
-    function copySurvey(id) {
-      const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const survey = surveys.find(s => s.id === id);
-      if (survey) {
-        const copiedSurvey = {
-          id: Date.now().toString(),
-          title: `${survey.title} (副本)`,
-          description: survey.description,
-          code: `${survey.code}_copy`,
-          questions: JSON.parse(JSON.stringify(survey.questions))
-        };
-        surveys.push(copiedSurvey);
-        localStorage.setItem('surveys', JSON.stringify(surveys));
-        loadSurveys();
-        showToast('问卷复制成功');
+    function editSurvey(surveyId) {
+      // 从 Bmob 云端加载问卷数据
+      try {
+        const Survey = Bmob.Query('Surveys');
+        Survey.get(surveyId).then(survey => {
+          currentSurvey = {
+            id: survey.code || survey.objectId,
+            bmobId: survey.objectId,
+            title: survey.title,
+            description: survey.description || '',
+            code: survey.code,
+            questions: survey.questions || []
+          };
+          document.getElementById('survey-title').value = survey.title;
+          document.getElementById('survey-description').value = survey.description || '';
+          renderQuestions();
+          switchPage('editor');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
       }
     }
 
     // 删除问卷
-    function deleteSurvey(id) {
-      const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const surveyToDelete = surveys.find(s => s.id === id);
-      if (surveyToDelete) {
-        // 从问卷列表移除
-        const filteredSurveys = surveys.filter(s => s.id !== id);
-        localStorage.setItem('surveys', JSON.stringify(filteredSurveys));
-        
-        // 添加到垃圾站
-        const trash = JSON.parse(localStorage.getItem('trash') || '[]');
-        surveyToDelete.deletedAt = new Date().toISOString();
-        trash.push(surveyToDelete);
-        localStorage.setItem('trash', JSON.stringify(trash));
-        
-        loadSurveys();
-        showToast('问卷已移至垃圾站');
-      }
-    }
-
-    // 提交问卷编码
-    function submitSurveyCode(code) {
-      // 从本地存储查找问卷
-      let surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      let survey = surveys.find(s => s.code === code);
-
-      // 从 Bmob 云端查找问卷
-      try {
-        const Survey = Bmob.Query('Surveys');
-        Survey.equalTo('code', code);
-        Survey.find().then(res => {
-          if (res && res.length > 0) {
-            // 找到问卷
-            const cloudSurvey = res[0];
-            currentSurvey = {
-              id: cloudSurvey.code || cloudSurvey.objectId,
-              bmobId: cloudSurvey.objectId,
-              title: cloudSurvey.title,
-              description: cloudSurvey.description,
-              code: cloudSurvey.code,
-              questions: cloudSurvey.questions || []
-            };
-            renderFillSurvey();
-            showMainContent();
-            switchPage('fill');
-          } else {
-            // 云端没找到，使用本地数据
-            if (survey) {
-              currentSurvey = survey;
-              renderFillSurvey();
-              showMainContent();
-              switchPage('fill');
-            } else {
-              showToast('未找到对应编码的问卷', 'error');
-            }
-          }
-        }).catch(err => {
-          console.error('Bmob 查询失败:', err);
-          // 查询失败，使用本地数据
-          if (survey) {
-            currentSurvey = survey;
-            renderFillSurvey();
-            showMainContent();
-            switchPage('fill');
-          } else {
-            showToast('未找到对应编码的问卷', 'error');
-          }
-        });
-      } catch (error) {
-        console.error('Bmob 初始化失败:', error);
-        // 初始化失败，使用本地数据
-        if (survey) {
-          currentSurvey = survey;
-          renderFillSurvey();
-          showMainContent();
-          switchPage('fill');
-        } else {
-          showToast('未找到对应编码的问卷', 'error');
-        }
-      }
-    }
-
-    // 渲染填写问卷
-    function renderFillSurvey() {
-      const fillSurvey = document.getElementById('fill-survey');
-      fillSurvey.innerHTML = `
-        <h2 class="text-xl font-bold mb-2">${currentSurvey.title}</h2>
-        <p class="text-gray-600 mb-6">${currentSurvey.description}</p>
-        <div id="fill-questions" class="space-y-6">
-          ${currentSurvey.questions.map((question, index) => `
-            <div class="question-card">
-              <div class="mb-3">
-                <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center inline-flex mr-2">${index + 1}</span>
-                <span class="font-medium">${question.text}</span>
-                ${question.required ? '<span class="text-danger ml-2">*</span>' : ''}
-              </div>
-              <div class="ml-8">
-                ${question.type === 'single' ? `
-                  <div class="space-y-2">
-                    ${question.options.map((option, optionIndex) => `
-                      <div class="option-item">
-                        <input type="radio" id="fill-${question.id}-${optionIndex}" name="fill-${question.id}" value="${option}" class="form-radio">
-                        <label for="fill-${question.id}-${optionIndex}">${option}</label>
-                      </div>
-                    `).join('')}
-                  </div>
-                ` : ''}
-                ${question.type === 'multiple' ? `
-                  <div class="space-y-2">
-                    ${question.options.map((option, optionIndex) => `
-                      <div class="option-item">
-                        <input type="checkbox" id="fill-${question.id}-${optionIndex}" name="fill-${question.id}" value="${option}" class="form-checkbox">
-                        <label for="fill-${question.id}-${optionIndex}">${option}</label>
-                      </div>
-                    `).join('')}
-                  </div>
-                ` : ''}
-                ${question.type === 'text' ? `
-                  <input type="text" id="fill-${question.id}" class="form-input" placeholder="请输入答案">
-                ` : ''}
-                ${question.type === 'textarea' ? `
-                  <textarea id="fill-${question.id}" class="form-input" rows="3" placeholder="请输入答案"></textarea>
-                ` : ''}
-                ${question.type === 'date' ? `
-                  <input type="date" id="fill-${question.id}" class="form-input">
-                ` : ''}
-                ${question.type === 'rating' ? `
-                  <div class="flex" id="rating-${question.id}">
-                    ${[1, 2, 3, 4, 5].map(star => `
-                      <i class="fa fa-star star" data-rating="${star}" onclick="setRating('${question.id}', ${star})"></i>
-                    `).join('')}
-                  </div>
-                  <input type="hidden" id="fill-${question.id}" value="">
-                ` : ''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-        <div class="mt-6 flex justify-center">
-          <button id="submit-survey" class="btn-primary flex items-center">
-            <i class="fa fa-check mr-2"></i> 提交问卷
-          </button>
-        </div>
-      `;
-
-      // 绑定提交按钮事件
-      document.getElementById('submit-survey').addEventListener('click', function() {
-        // 检查是否有必填项未填写
-        let isValid = true;
-        currentSurvey.questions.forEach(question => {
-          if (question.required) {
-            let answer;
-            switch (question.type) {
-              case 'single':
-                const radio = document.querySelector(`input[name="fill-${question.id}"]:checked`);
-                answer = radio ? radio.value : '';
-                break;
-              case 'multiple':
-                const checkboxes = document.querySelectorAll(`input[name="fill-${question.id}"]:checked`);
-                answer = Array.from(checkboxes).map(cb => cb.value);
-                break;
-              case 'text':
-              case 'textarea':
-              case 'date':
-              case 'rating':
-                const inputEl = document.getElementById(`fill-${question.id}`);
-                answer = inputEl ? inputEl.value : '';
-                break;
-            }
-            if (!answer || (Array.isArray(answer) && answer.length === 0)) {
-              isValid = false;
-            }
-          }
-        });
-
-        if (!isValid) {
-          showToast('请填写所有必填题目', 'error');
-          return;
-        }
-
-        // 显示用户信息填写模态框
-        const modalContent = document.getElementById('modal-content');
-        modalContent.innerHTML = `
-          <div class="text-center mb-4">
-            <h3 class="text-lg font-bold">请填写个人信息</h3>
-          </div>
-          <form id="user-info-form" class="space-y-4">
-            <div>
-              <label for="user-surname" class="form-label">姓氏</label>
-              <input type="text" id="user-surname" class="form-input" placeholder="请输入您的姓氏" required>
-            </div>
-            <div>
-              <label for="user-birthdate" class="form-label">出生年月</label>
-              <input type="month" id="user-birthdate" class="form-input" required>
-            </div>
-            <div class="flex justify-end space-x-2">
-              <button type="button" class="btn-secondary" onclick="closeModal()">取消</button>
-              <button type="submit" id="submit-info" class="btn-primary">确定</button>
-            </div>
-          </form>
-        `;
-
-        // 绑定表单提交事件
-        document.getElementById('user-info-form').addEventListener('submit', function(e) {
-          e.preventDefault();
-          const userInfo = {
-            surname: document.getElementById('user-surname').value,
-            birthdate: document.getElementById('user-birthdate').value
-          };
-          submitSurveyWithUserInfo(userInfo);
-        });
-
-        // 显示模态框
-        document.getElementById('modal').classList.remove('hidden');
-      });
-    }
-
-    // 设置评分
-    function setRating(questionId, rating) {
-      const stars = document.querySelectorAll(`#rating-${questionId} .star`);
-      stars.forEach((star, index) => {
-        if (index < rating) {
-          star.classList.add('active');
-        } else {
-          star.classList.remove('active');
-        }
-      });
-      document.getElementById(`fill-${questionId}`).value = rating;
-    }
-
-    // 提交问卷（带用户信息）
-    function submitSurveyWithUserInfo(userInfo) {
-      const answers = {};
-      let isValid = true;
-
-      currentSurvey.questions.forEach(question => {
-        let answer;
-        switch (question.type) {
-          case 'single':
-            const radio = document.querySelector(`input[name="fill-${question.id}"]:checked`);
-            answer = radio ? radio.value : '';
-            break;
-          case 'multiple':
-            const checkboxes = document.querySelectorAll(`input[name="fill-${question.id}"]:checked`);
-            answer = Array.from(checkboxes).map(cb => cb.value);
-            break;
-          case 'text':
-          case 'textarea':
-          case 'date':
-          case 'rating':
-            const inputEl = document.getElementById(`fill-${question.id}`);
-            answer = inputEl ? inputEl.value : '';
-            break;
-        }
-
-        answers[question.id] = answer;
-
-        if (question.required && (!answer || (Array.isArray(answer) && answer.length === 0))) {
-          isValid = false;
-        }
-      });
-
-      if (!isValid) {
-        showToast('请填写所有必填题目');
-        return;
-      }
-
-      // 禁用提交按钮，防止重复提交
-      const submitBtn = document.getElementById('submit-info');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>提交中...';
-      }
-
-      // 延迟执行保存操作，模拟处理过程
-      setTimeout(function() {
-        // 保存回答到本地存储
-        const responses = JSON.parse(localStorage.getItem('responses') || '{}');
-        if (!responses[currentSurvey.id]) {
-          responses[currentSurvey.id] = [];
-        }
-
-        const responseData = {
-          answers,
-          userInfo,
-          submittedAt: new Date().toISOString()
-        };
-
-        responses[currentSurvey.id].push(responseData);
-        localStorage.setItem('responses', JSON.stringify(responses));
-
-        // 更新问卷的响应数
-        const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-        const surveyIndex = surveys.findIndex(s => s.id === currentSurvey.id);
-        if (surveyIndex > -1) {
-          surveys[surveyIndex].responses = (surveys[surveyIndex].responses || 0) + 1;
-          localStorage.setItem('surveys', JSON.stringify(surveys));
-        }
-
-        // 保存到 Bmob 云端
+    function deleteSurvey(surveyId) {
+      if (confirm('确定要删除这个问卷吗？')) {
+        // 从 Bmob 云端删除问卷
         try {
-          const Response = Bmob.Query('Responses');
-          Response.set('surveyId', currentSurvey.id);
-          Response.set('surveyCode', currentSurvey.code);
-          Response.set('answers', answers);
-          Response.set('userName', userInfo.surname);
-          Response.set('userBirthdate', userInfo.birthdate);
-          Response.set('submittedAt', new Date().toISOString());
-          
-          Response.save().then(res => {
-            console.log('Bmob 答卷保存成功:', res);
+          const Survey = Bmob.Query('Surveys');
+          Survey.set('id', surveyId);
+          Survey.destroy().then(res => {
+            loadSurveys();
+            showToast('问卷删除成功');
           }).catch(err => {
-            console.error('Bmob 答卷保存失败:', err);
+            console.error('删除失败:', err);
+            showToast('删除失败，请重试');
           });
         } catch (error) {
           console.error('Bmob 初始化失败:', error);
+          showToast('删除失败，请重试');
         }
-
-        // 关闭模态框
-        document.getElementById('modal').classList.add('hidden');
-
-        // 显示成功页面
-        const fillSurvey = document.getElementById('fill-survey');
-        fillSurvey.innerHTML = `
-          <div class="text-center py-12">
-            <i class="fa fa-check-circle text-4xl text-success mb-4"></i>
-            <h3 class="text-xl font-bold mb-2">提交成功！</h3>
-            <p class="text-gray-600 mb-6">感谢您的参与</p>
-            <button class="btn-primary" onclick="showWelcomePage()">
-              <i class="fa fa-home mr-2"></i> 返回首页
-            </button>
-          </div>
-        `;
-
-        showToast('问卷提交成功');
-      }, 500);
+      }
     }
 
-    // 退出
-    function logout() {
-      isAdmin = false;
-      // 清空登录输入框
-      const loginUsername = document.getElementById('login-username');
-      const loginPassword = document.getElementById('login-password');
-      if (loginUsername) loginUsername.value = '';
-      if (loginPassword) loginPassword.value = '';
-      showWelcomePage();
+    // 查看统计
+    function viewStats(surveyId) {
+      // 从 Bmob 云端加载问卷数据
+      try {
+        const Survey = Bmob.Query('Surveys');
+        Survey.get(surveyId).then(survey => {
+          currentSurvey = {
+            id: survey.code || survey.objectId,
+            bmobId: survey.objectId,
+            title: survey.title,
+            description: survey.description || '',
+            code: survey.code,
+            questions: survey.questions || []
+          };
+          renderStats();
+          switchPage('stats');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 加载统计问卷列表
+    function loadSurveysForStats() {
+      // 从 Bmob 云端加载数据
+      try {
+        const Survey = Bmob.Query('Surveys');
+        Survey.find().then(res => {
+          const surveys = res || [];
+          const statsSurveysList = document.getElementById('stats-surveys-list');
+          statsSurveysList.innerHTML = `
+            <div class="space-y-4">
+              ${surveys.length === 0 ? `
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fa fa-folder-open text-2xl mb-2"></i>
+                  <p>暂无保存的问卷</p>
+                </div>
+              ` : `
+                ${surveys.map(survey => `
+                  <div class="border rounded-lg p-4 shadow-hover cursor-pointer" onclick="viewStats('${survey.objectId}')">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <h3 class="font-semibold mb-1">${survey.title}</h3>
+                        <p class="text-sm text-gray-500 mb-1">创建时间: ${new Date(survey.createdAt).toLocaleString()}</p>
+                        <p class="text-sm text-gray-500">答卷数: ${survey.responses || 0}</p>
+                      </div>
+                      <div>
+                        <i class="fa fa-arrow-right text-primary"></i>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              `}
+            </div>
+          `;
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 渲染统计数据
+    function renderStats() {
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+          const statsDetails = document.getElementById('stats-details');
+
+          // 计算统计数据
+          const stats = {};
+          currentSurvey.questions.forEach(question => {
+            stats[question.id] = {
+              text: question.text,
+              type: question.type,
+              options: question.options || [],
+              answers: []
+            };
+          });
+
+          surveyResponses.forEach(response => {
+            Object.keys(response.answers).forEach(questionId => {
+              if (stats[questionId]) {
+                stats[questionId].answers.push(response.answers[questionId]);
+              }
+            });
+          });
+
+          // 生成统计 HTML
+          let statsHtml = `
+            <h3 class="text-lg font-semibold mb-4">${currentSurvey.title} - 统计结果</h3>
+            <div class="space-y-6">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="text-gray-600">总答卷数: <span class="font-semibold">${surveyResponses.length}</span></p>
+                  <p class="text-gray-600">问卷描述: ${currentSurvey.description || '无'}</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary flex items-center" onclick="exportResponsesCSV()">
+                    <i class="fa fa-file-excel-o mr-2"></i> 导出CSV
+                  </button>
+                </div>
+              </div>
+              
+              <!-- 用户答题情况 -->
+              <div>
+                <div class="flex justify-between items-center mb-4">
+                  <h4 class="font-semibold">用户答题情况</h4>
+                  <button id="toggle-user-list" class="text-primary text-sm flex items-center">
+                    <i class="fa fa-chevron-down mr-1"></i> 展开
+                  </button>
+                </div>
+                <div id="user-list-container" class="hidden border rounded-lg p-4 bg-gray-50">
+                  <!-- 搜索框 -->
+                  <div class="flex space-x-2 mb-4">
+                    <input type="text" id="user-search-surname" class="form-input" placeholder="搜索姓氏">
+                    <input type="month" id="user-search-birthdate" class="form-input">
+                    <button class="btn-secondary" onclick="filterUsers()">
+                      <i class="fa fa-search mr-1"></i> 搜索
+                    </button>
+                    <button class="btn-secondary" onclick="resetUserFilter()">
+                      <i class="fa fa-refresh mr-1"></i> 重置
+                    </button>
+                  </div>
+                  <div id="user-list" class="space-y-2">
+                    ${surveyResponses.length === 0 ? `
+                      <p class="text-gray-600">暂无用户答题记录</p>
+                    ` : `
+                      ${surveyResponses.map((response, index) => `
+                        <div class="border rounded p-2">
+                          <div class="flex justify-between items-start">
+                            <div>
+                              <p class="font-medium">${response.userName} (${response.userBirthdate})</p>
+                              <p class="text-sm text-gray-500">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
+                            </div>
+                            <button class="text-primary text-sm" onclick="showUserAnswers(${index})">
+                              查看答案
+                            </button>
+                          </div>
+                        </div>
+                      `).join('')}
+                    `}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 题目统计 -->
+              ${currentSurvey.questions.map((question, index) => {
+                const questionStats = stats[question.id];
+                let questionHtml = `
+                  <div class="border rounded-lg p-4">
+                    <h4 class="font-semibold mb-3">${index + 1}. ${question.text}</h4>
+                `;
+
+                if (question.type === 'single' || question.type === 'multiple') {
+                  // 选择题统计
+                  const optionCounts = {};
+                  question.options.forEach(option => {
+                    optionCounts[option] = 0;
+                  });
+                  questionStats.answers.forEach(answer => {
+                    if (Array.isArray(answer)) {
+                      // 多选题
+                      answer.forEach(a => {
+                        if (optionCounts[a] !== undefined) {
+                          optionCounts[a]++;
+                        }
+                      });
+                    } else {
+                      // 单选题
+                      if (optionCounts[answer] !== undefined) {
+                        optionCounts[answer]++;
+                      }
+                    }
+                  });
+
+                  questionHtml += `
+                    <div class="space-y-2">
+                      ${question.options.map(option => {
+                        const count = optionCounts[option] || 0;
+                        const percentage = surveyResponses.length > 0 ? Math.round((count / surveyResponses.length) * 100) : 0;
+                        return `
+                          <div>
+                            <div class="flex justify-between mb-1">
+                              <span>${option}</span>
+                              <span>${count} (${percentage}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                              <div class="bg-primary h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>
+                  `;
+                } else if (question.type === 'rating') {
+                  // 评分题统计
+                  const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                  questionStats.answers.forEach(answer => {
+                    if (ratingCounts[answer] !== undefined) {
+                      ratingCounts[answer]++;
+                    }
+                  });
+
+                  questionHtml += `
+                    <div class="space-y-2">
+                      ${Object.entries(ratingCounts).map(([rating, count]) => {
+                        const percentage = surveyResponses.length > 0 ? Math.round((count / surveyResponses.length) * 100) : 0;
+                        return `
+                          <div>
+                            <div class="flex justify-between mb-1">
+                              <span>${'★'.repeat(parseInt(rating))}${'☆'.repeat(5 - parseInt(rating))}</span>
+                              <span>${count} (${percentage}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                              <div class="bg-primary h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>
+                  `;
+                } else {
+                  // 填空题、简答题、日期题
+                  questionHtml += `
+                    <div class="space-y-2">
+                      ${questionStats.answers.length === 0 ? `
+                        <p class="text-gray-600">暂无答案</p>
+                      ` : `
+                        ${questionStats.answers.map((answer, answerIndex) => `
+                          <div class="border rounded p-2">
+                            <p class="text-sm">${answer || '无'}</p>
+                          </div>
+                        `).join('')}
+                      `}
+                    </div>
+                  `;
+                }
+
+                questionHtml += `</div>`;
+                return questionHtml;
+              }).join('')}
+            </div>
+          `;
+
+          statsDetails.innerHTML = statsHtml;
+          statsDetails.classList.remove('hidden');
+
+          // 绑定事件
+          document.getElementById('toggle-user-list').addEventListener('click', function() {
+            const userListContainer = document.getElementById('user-list-container');
+            const icon = this.querySelector('i');
+            if (userListContainer.classList.contains('hidden')) {
+              userListContainer.classList.remove('hidden');
+              icon.classList.remove('fa-chevron-down');
+              icon.classList.add('fa-chevron-up');
+              this.innerHTML = '<i class="fa fa-chevron-up mr-1"></i> 收起';
+            } else {
+              userListContainer.classList.add('hidden');
+              icon.classList.remove('fa-chevron-up');
+              icon.classList.add('fa-chevron-down');
+              this.innerHTML = '<i class="fa fa-chevron-down mr-1"></i> 展开';
+            }
+          });
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 显示用户答案
+    function showUserAnswers(index) {
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+          const response = surveyResponses[index];
+          if (!response) return;
+
+          const modalContent = document.getElementById('modal-content');
+          let answersHtml = `
+            <div class="text-center mb-4">
+              <h3 class="text-lg font-bold">${response.userName} 的答案</h3>
+              <p class="text-sm text-gray-600">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
+            </div>
+            <div class="space-y-4">
+              ${currentSurvey.questions.map((question, qIndex) => {
+                const answer = response.answers[question.id];
+                let answerText = '';
+                if (Array.isArray(answer)) {
+                  answerText = answer.join('、');
+                } else if (question.type === 'rating') {
+                  answerText = '★'.repeat(parseInt(answer)) + '☆'.repeat(5 - parseInt(answer));
+                } else {
+                  answerText = answer || '未填写';
+                }
+                return `
+                  <div>
+                    <p class="font-medium mb-1">${qIndex + 1}. ${question.text}</p>
+                    <p class="text-gray-600">${answerText}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <div class="mt-4 flex justify-end">
+              <button class="btn-secondary" onclick="closeModal()">关闭</button>
+            </div>
+          `;
+          modalContent.innerHTML = answersHtml;
+          document.getElementById('modal').classList.remove('hidden');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 过滤用户
+    function filterUsers() {
+      const surname = document.getElementById('user-search-surname').value.toLowerCase();
+      const birthdate = document.getElementById('user-search-birthdate').value;
+      
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+
+          const filteredResponses = surveyResponses.filter(response => {
+            const matchSurname = !surname || response.userName.toLowerCase().includes(surname);
+            const matchBirthdate = !birthdate || response.userBirthdate === birthdate;
+            return matchSurname && matchBirthdate;
+          });
+
+          const userList = document.getElementById('user-list');
+          userList.innerHTML = `
+            ${filteredResponses.length === 0 ? `
+              <p class="text-gray-600">暂无匹配的用户</p>
+            ` : `
+              ${filteredResponses.map((response, index) => {
+                const originalIndex = surveyResponses.findIndex(r => r.objectId === response.objectId);
+                return `
+                  <div class="border rounded p-2">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <p class="font-medium">${response.userName} (${response.userBirthdate})</p>
+                        <p class="text-sm text-gray-500">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
+                      </div>
+                      <button class="text-primary text-sm" onclick="showUserAnswers(${originalIndex})">
+                        查看答案
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            `}
+          `;
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
+    }
+
+    // 重置用户过滤器
+    function resetUserFilter() {
+      document.getElementById('user-search-surname').value = '';
+      document.getElementById('user-search-birthdate').value = '';
+      filterUsers();
+    }
+
+    // 导出答卷为CSV
+    function exportResponsesCSV() {
+      // 从 Bmob 云端加载答卷数据
+      try {
+        const Response = Bmob.Query('Responses');
+        Response.equalTo('surveyId', currentSurvey.id);
+        Response.find().then(res => {
+          const surveyResponses = res || [];
+
+          if (surveyResponses.length === 0) {
+            showToast('暂无答卷数据', 'error');
+            return;
+          }
+
+          // 生成CSV头部
+          let csvContent = '姓名,出生年月,提交时间';
+          currentSurvey.questions.forEach(question => {
+            csvContent += `,${question.text}`;
+          });
+          csvContent += '\n';
+
+          // 生成CSV数据行
+          surveyResponses.forEach(response => {
+            csvContent += `${response.userName},${response.userBirthdate},${response.submittedAt}`;
+            currentSurvey.questions.forEach(question => {
+              const answer = response.answers[question.id];
+              let answerText = '';
+              if (Array.isArray(answer)) {
+                answerText = '"' + answer.join('、') + '"';
+              } else if (answer) {
+                answerText = '"' + answer.replace(/"/g, '""') + '"';
+              }
+              csvContent += `,${answerText}`;
+            });
+            csvContent += '\n';
+          });
+
+          // 下载CSV文件
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          saveAs(blob, `${currentSurvey.title}_答卷.csv`);
+          showToast('答卷导出成功');
+        }).catch(err => {
+          console.error('加载失败:', err);
+          showToast('加载失败，请重试');
+        });
+      } catch (error) {
+        console.error('Bmob 初始化失败:', error);
+        showToast('加载失败，请重试');
+      }
     }
 
     // 显示提示信息
@@ -1518,375 +1366,6 @@
           document.body.removeChild(toast);
         }, 300);
       }, 3000);
-    }
-
-    // 加载统计问卷列表
-    function loadSurveysForStats() {
-      const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const statsSurveysList = document.getElementById('stats-surveys-list');
-
-      statsSurveysList.innerHTML = `
-        <div class="space-y-4">
-          ${surveys.length === 0 ? `
-            <div class="text-center py-8 text-gray-500">
-              <i class="fa fa-folder-open text-2xl mb-2"></i>
-              <p>暂无保存的问卷</p>
-            </div>
-          ` : `
-            ${surveys.map(survey => `
-              <div class="border rounded-lg p-4 shadow-hover cursor-pointer" onclick="selectSurveyForStats('${survey.id}')">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="font-semibold mb-1">${survey.title}</h3>
-                    <p class="text-sm text-gray-500 mb-1">创建时间: ${new Date(survey.createdAt).toLocaleString()}</p>
-                    <p class="text-sm text-gray-500">答卷数: ${survey.responses || 0}</p>
-                  </div>
-                  <div>
-                    <i class="fa fa-arrow-right text-primary"></i>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          `}
-        </div>
-      `;
-    }
-
-    // 选择问卷进行统计
-    function selectSurveyForStats(surveyId) {
-      const surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
-      const survey = surveys.find(s => s.id === surveyId);
-      if (survey) {
-        currentSurvey = survey;
-        renderStats();
-      }
-    }
-
-    // 渲染统计数据
-    function renderStats() {
-      const responses = JSON.parse(localStorage.getItem('responses') || '{}');
-      const surveyResponses = responses[currentSurvey.id] || [];
-      const statsDetails = document.getElementById('stats-details');
-
-      // 计算统计数据
-      const stats = {};
-      currentSurvey.questions.forEach(question => {
-        stats[question.id] = {
-          text: question.text,
-          type: question.type,
-          options: question.options || [],
-          answers: []
-        };
-      });
-
-      surveyResponses.forEach(response => {
-        Object.keys(response.answers).forEach(questionId => {
-          if (stats[questionId]) {
-            stats[questionId].answers.push(response.answers[questionId]);
-          }
-        });
-      });
-
-      // 生成统计 HTML
-      let statsHtml = `
-        <h3 class="text-lg font-semibold mb-4">${currentSurvey.title} - 统计结果</h3>
-        <div class="space-y-6">
-          <div class="flex justify-between items-center">
-            <div>
-              <p class="text-gray-600">总答卷数: <span class="font-semibold">${surveyResponses.length}</span></p>
-              <p class="text-gray-600">问卷描述: ${currentSurvey.description || '无'}</p>
-            </div>
-            <div class="flex space-x-2">
-              <button class="btn-secondary flex items-center" onclick="exportResponsesCSV()">
-                <i class="fa fa-file-excel-o mr-2"></i> 导出CSV
-              </button>
-            </div>
-          </div>
-          
-          <!-- 用户答题情况 -->
-          <div>
-            <div class="flex justify-between items-center mb-4">
-              <h4 class="font-semibold">用户答题情况</h4>
-              <button id="toggle-user-list" class="text-primary text-sm flex items-center">
-                <i class="fa fa-chevron-down mr-1"></i> 展开
-              </button>
-            </div>
-            <div id="user-list-container" class="hidden border rounded-lg p-4 bg-gray-50">
-              <!-- 搜索框 -->
-              <div class="flex space-x-2 mb-4">
-                <input type="text" id="user-search-surname" class="form-input" placeholder="搜索姓氏">
-                <input type="month" id="user-search-birthdate" class="form-input">
-                <button class="btn-secondary" onclick="filterUsers()">
-                  <i class="fa fa-search mr-1"></i> 搜索
-                </button>
-                <button class="btn-secondary" onclick="resetUserFilter()">
-                  <i class="fa fa-refresh mr-1"></i> 重置
-                </button>
-              </div>
-              <div id="user-list" class="space-y-2">
-                ${surveyResponses.length === 0 ? `
-                  <p class="text-gray-600">暂无用户答题记录</p>
-                ` : `
-                  ${surveyResponses.map((response, index) => `
-                    <div class="border rounded p-2">
-                      <div class="flex justify-between items-start">
-                        <div>
-                          <p class="font-medium">${response.userInfo.surname} (${response.userInfo.birthdate})</p>
-                          <p class="text-sm text-gray-500">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
-                        </div>
-                        <button class="text-primary text-sm" onclick="showUserAnswers(${index})">
-                          查看答案
-                        </button>
-                      </div>
-                    </div>
-                  `).join('')}
-                `}
-              </div>
-            </div>
-          </div>
-          
-          <!-- 题目统计 -->
-          ${currentSurvey.questions.map((question, index) => {
-            const questionStats = stats[question.id];
-            let questionHtml = `
-              <div class="border rounded-lg p-4">
-                <h4 class="font-semibold mb-3">${index + 1}. ${question.text}</h4>
-            `;
-
-            if (question.type === 'single' || question.type === 'multiple') {
-              // 选择题统计
-              const optionCounts = {};
-              question.options.forEach(option => {
-                optionCounts[option] = 0;
-              });
-              questionStats.answers.forEach(answer => {
-                if (Array.isArray(answer)) {
-                  // 多选题
-                  answer.forEach(a => {
-                    if (optionCounts[a] !== undefined) {
-                      optionCounts[a]++;
-                    }
-                  });
-                } else {
-                  // 单选题
-                  if (optionCounts[answer] !== undefined) {
-                    optionCounts[answer]++;
-                  }
-                }
-              });
-
-              questionHtml += `
-                <div class="space-y-2">
-                  ${question.options.map(option => {
-                    const count = optionCounts[option] || 0;
-                    const percentage = surveyResponses.length > 0 ? Math.round((count / surveyResponses.length) * 100) : 0;
-                    return `
-                      <div>
-                        <div class="flex justify-between mb-1">
-                          <span>${option}</span>
-                          <span>${count} (${percentage}%)</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                          <div class="bg-primary h-2 rounded-full" style="width: ${percentage}%"></div>
-                        </div>
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-              `;
-            } else if (question.type === 'rating') {
-              // 评分题统计
-              const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-              questionStats.answers.forEach(answer => {
-                if (ratingCounts[answer] !== undefined) {
-                  ratingCounts[answer]++;
-                }
-              });
-
-              questionHtml += `
-                <div class="space-y-2">
-                  ${Object.entries(ratingCounts).map(([rating, count]) => {
-                    const percentage = surveyResponses.length > 0 ? Math.round((count / surveyResponses.length) * 100) : 0;
-                    return `
-                      <div>
-                        <div class="flex justify-between mb-1">
-                          <span>${'★'.repeat(parseInt(rating))}${'☆'.repeat(5 - parseInt(rating))}</span>
-                          <span>${count} (${percentage}%)</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                          <div class="bg-primary h-2 rounded-full" style="width: ${percentage}%"></div>
-                        </div>
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-              `;
-            } else {
-              // 填空题、简答题、日期题
-              questionHtml += `
-                <div class="space-y-2">
-                  ${questionStats.answers.length === 0 ? `
-                    <p class="text-gray-600">暂无答案</p>
-                  ` : `
-                    ${questionStats.answers.map((answer, answerIndex) => `
-                      <div class="border rounded p-2">
-                        <p class="text-sm">${answer || '无'}</p>
-                      </div>
-                    `).join('')}
-                  `}
-                </div>
-              `;
-            }
-
-            questionHtml += `</div>`;
-            return questionHtml;
-          }).join('')}
-        </div>
-      `;
-
-      statsDetails.innerHTML = statsHtml;
-      statsDetails.classList.remove('hidden');
-
-      // 绑定事件
-      document.getElementById('toggle-user-list').addEventListener('click', function() {
-        const userListContainer = document.getElementById('user-list-container');
-        const icon = this.querySelector('i');
-        if (userListContainer.classList.contains('hidden')) {
-          userListContainer.classList.remove('hidden');
-          icon.classList.remove('fa-chevron-down');
-          icon.classList.add('fa-chevron-up');
-          this.innerHTML = '<i class="fa fa-chevron-up mr-1"></i> 收起';
-        } else {
-          userListContainer.classList.add('hidden');
-          icon.classList.remove('fa-chevron-up');
-          icon.classList.add('fa-chevron-down');
-          this.innerHTML = '<i class="fa fa-chevron-down mr-1"></i> 展开';
-        }
-      });
-    }
-
-    // 显示用户答案
-    function showUserAnswers(index) {
-      const responses = JSON.parse(localStorage.getItem('responses') || '{}');
-      const surveyResponses = responses[currentSurvey.id] || [];
-      const response = surveyResponses[index];
-      if (!response) return;
-
-      const modalContent = document.getElementById('modal-content');
-      let answersHtml = `
-        <div class="text-center mb-4">
-          <h3 class="text-lg font-bold">${response.userInfo.surname} 的答案</h3>
-          <p class="text-sm text-gray-600">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
-        </div>
-        <div class="space-y-4">
-          ${currentSurvey.questions.map((question, qIndex) => {
-            const answer = response.answers[question.id];
-            let answerText = '';
-            if (Array.isArray(answer)) {
-              answerText = answer.join('、');
-            } else if (question.type === 'rating') {
-              answerText = '★'.repeat(parseInt(answer)) + '☆'.repeat(5 - parseInt(answer));
-            } else {
-              answerText = answer || '未填写';
-            }
-            return `
-              <div>
-                <p class="font-medium mb-1">${qIndex + 1}. ${question.text}</p>
-                <p class="text-gray-600">${answerText}</p>
-              </div>
-            `;
-          }).join('')}
-        </div>
-        <div class="mt-4 flex justify-end">
-          <button class="btn-secondary" onclick="closeModal()">关闭</button>
-        </div>
-      `;
-      modalContent.innerHTML = answersHtml;
-      document.getElementById('modal').classList.remove('hidden');
-    }
-
-    // 过滤用户
-    function filterUsers() {
-      const surname = document.getElementById('user-search-surname').value.toLowerCase();
-      const birthdate = document.getElementById('user-search-birthdate').value;
-      const responses = JSON.parse(localStorage.getItem('responses') || '{}');
-      const surveyResponses = responses[currentSurvey.id] || [];
-
-      const filteredResponses = surveyResponses.filter(response => {
-        const matchSurname = !surname || response.userInfo.surname.toLowerCase().includes(surname);
-        const matchBirthdate = !birthdate || response.userInfo.birthdate === birthdate;
-        return matchSurname && matchBirthdate;
-      });
-
-      const userList = document.getElementById('user-list');
-      userList.innerHTML = `
-        ${filteredResponses.length === 0 ? `
-          <p class="text-gray-600">暂无匹配的用户</p>
-        ` : `
-          ${filteredResponses.map((response, index) => {
-            const originalIndex = surveyResponses.findIndex(r => r.submittedAt === response.submittedAt);
-            return `
-              <div class="border rounded p-2">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <p class="font-medium">${response.userInfo.surname} (${response.userInfo.birthdate})</p>
-                    <p class="text-sm text-gray-500">提交时间: ${new Date(response.submittedAt).toLocaleString()}</p>
-                  </div>
-                  <button class="text-primary text-sm" onclick="showUserAnswers(${originalIndex})">
-                    查看答案
-                  </button>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        `}
-      `;
-    }
-
-    // 重置用户过滤器
-    function resetUserFilter() {
-      document.getElementById('user-search-surname').value = '';
-      document.getElementById('user-search-birthdate').value = '';
-      filterUsers();
-    }
-
-    // 导出答卷为CSV
-    function exportResponsesCSV() {
-      const responses = JSON.parse(localStorage.getItem('responses') || '{}');
-      const surveyResponses = responses[currentSurvey.id] || [];
-
-      if (surveyResponses.length === 0) {
-        showToast('暂无答卷数据', 'error');
-        return;
-      }
-
-      // 生成CSV头部
-      let csvContent = '姓名,出生年月,提交时间';
-      currentSurvey.questions.forEach(question => {
-        csvContent += `,${question.text}`;
-      });
-      csvContent += '\n';
-
-      // 生成CSV数据行
-      surveyResponses.forEach(response => {
-        csvContent += `${response.userInfo.surname},${response.userInfo.birthdate},${response.submittedAt}`;
-        currentSurvey.questions.forEach(question => {
-          const answer = response.answers[question.id];
-          let answerText = '';
-          if (Array.isArray(answer)) {
-            answerText = '"' + answer.join('、') + '"';
-          } else if (answer) {
-            answerText = '"' + answer.replace(/"/g, '""') + '"';
-          }
-          csvContent += `,${answerText}`;
-        });
-        csvContent += '\n';
-      });
-
-      // 下载CSV文件
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      saveAs(blob, `${currentSurvey.title}_答卷.csv`);
-      showToast('答卷导出成功');
     }
   </script>
 </body>
