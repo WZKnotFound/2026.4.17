@@ -311,7 +311,12 @@
             </div>
             <div>
               <label for="survey-code" class="form-label">问卷编码</label>
-              <input type="text" id="survey-code" class="form-input" placeholder="请输入问卷编码" required>
+              <div class="flex space-x-2">
+                <input type="text" id="survey-code" class="form-input flex-1" placeholder="请输入问卷编码" required>
+                <button type="button" id="generate-code" class="btn-secondary whitespace-nowrap">
+                  <i class="fa fa-refresh mr-1"></i> 生成编码
+                </button>
+              </div>
             </div>
           </div>
 
@@ -439,7 +444,7 @@
       // 初始化 Bmob（使用 try-catch 避免加载失败影响其他功能）
       try {
         if (typeof Bmob !== 'undefined') {
-          Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "c4306f2d1c48cea5e10b6969cc8162e4");
+          Bmob.initialize("60d1097ef48b12f4fb708abb30bbca4b", "10cb86ef6e8dc0ef");
           console.log('Bmob 初始化成功');
         } else {
           console.warn('Bmob SDK 未加载，将使用本地存储');
@@ -546,6 +551,9 @@
           renderQuestions();
         }
       });
+      
+      // 生成问卷编码按钮
+      document.getElementById('generate-code').addEventListener('click', generateCode);
       document.getElementById('btn-save').addEventListener('click', saveSurvey);
       document.getElementById('btn-export').addEventListener('click', exportSurvey);
       document.getElementById('btn-export-docx').addEventListener('click', exportSurveyDOCX);
@@ -662,7 +670,30 @@
 
     // 关闭模态框
     function closeModal() {
-      document.getElementById('modal').classList.add('hidden');
+      const modal = document.getElementById('modal');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
+
+    // 生成问卷编码
+    function generateCode() {
+      // 生成一个包含字母和数字的随机编码
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let code = '';
+      for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      
+      // 将生成的编码填充到输入框
+      document.getElementById('survey-code').value = code;
+      
+      // 更新当前问卷的编码
+      if (currentSurvey) {
+        currentSurvey.code = code;
+      }
+      
+      // 显示成功提示
+      showToast('问卷编码生成成功', 'success');
     }
 
     // 添加题目
