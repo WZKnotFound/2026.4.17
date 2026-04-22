@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广财儿童银行 - 活期+定期+投资</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('KObe.jpg');
+      background-size: cover, cover;
+      background-position: center, center;
+      background-repeat: no-repeat, no-repeat;
+      background-attachment: fixed;
+      font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    .card {
+      max-width: 550px;
+      width: 100%;
+      background: #fff9e6;
+      border-radius: 40px 40px 30px 30px;
+      box-shadow: 0 15px 0 #ffb156, 0 20px 20px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      border: 4px solid white;
+    }
+
+    .header {
+      background: #ffaa33;
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 4px solid #ffd78c;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #2d4a5e;
+      text-shadow: 3px 3px 0 #ffeeaa;
+    }
+
+    .header p {
+      background: #fef5d3;
+      display: inline-block;
+      padding: 0.3rem 1.5rem;
+      border-radius: 40px;
+      font-weight: bold;
+      color: #b25700;
+    }
+
+    .section {
+      padding: 2rem 1.8rem;
+    }
+
+    .input-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      color: #146b9e;
+      margin-bottom: 0.3rem;
+      margin-left: 0.5rem;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      border: 3px solid #ffc48c;
+      border-radius: 50px;
+      font-size: 1rem;
+      outline: none;
+      background: #fffdf6;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: #ff9500;
+      box-shadow: 0 0 0 4px #ffe0b0;
+    }
+
+    .btn {
+      width: 100%;
+      background: #ffaa33;
+      border: none;
+      border-radius: 50px;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2d4a5e;
+      border-bottom: 5px solid #b26800;
+      cursor: pointer;
+      transition: 0.05s linear;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 0.5rem;
+    }
+
+    .btn:active {
+      transform: translateY(4px);
+      border-bottom-width: 2px;
+    }
+
+    .btn-small {
+      font-size: 1.2rem;
+      padding: 0.8rem;
+    }
+
+    .balance-box {
+      background: #d9f0fa;
+      border-radius: 50px;
+      padding: 1.2rem 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      border: 4px dashed #ffae42;
+      margin: 1.2rem 0;
+    }
+
+    .balance-box span:last-child {
+      background: white;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      color: #1f6390;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0 0.8rem;
+    }
+
+    .action-row input {
+      flex: 2;
+      padding: 0.8rem 1.2rem;
+      border: 3px solid #ffb779;
+      border-radius: 40px;
+      font-size: 1.2rem;
+    }
+
+    .action-row .btn-small {
+      flex: 1;
+      font-size: 1.2rem;
+      padding: 0.8rem;
+      margin-top: 0;
+    }
+
+    .message {
+      background: #fff2ce;
+      border-radius: 30px;
+      padding: 0.6rem 1.2rem;
+      margin-top: 1rem;
+      border-left: 8px solid #ffae42;
+      color: #9b5400;
+    }
+
+    .logout-btn {
+      background: #c2ddee;
+      border-bottom-color: #5885a2;
+      color: #113448;
+      margin-top: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .welcome {
+      font-size: 1.5rem;
+      text-align: center;
+      background: #b7dff5;
+      border-radius: 40px;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* 储蓄目标样式 */
+    .goal-container {
+      margin-top: 1.5rem;
+      padding-top: 0.5rem;
+      border-top: 2px dashed #ffb156;
+    }
+
+    .goal-header {
+      font-weight: bold;
+      color: #146b9e;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .goal-setup {
+      background: #fff5e6;
+      padding: 1rem;
+      border-radius: 30px;
+      margin-bottom: 1rem;
+    }
+
+    .goal-progress {
+      background: #e9e9e9;
+      border-radius: 30px;
+      height: 30px;
+      width: 100%;
+      overflow: hidden;
+      margin: 0.8rem 0;
+    }
+
+    .goal-progress-fill {
+      background: linear-gradient(90deg, #ffd700, #ffb347);
+      width: 0%;
+      height: 100%;
+      border-radius: 30px;
+      transition: width 0.3s ease;
+    }
+
+    .goal-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #5c3b00;
+    }
+
+    .btn-goal {
+      background: #ffaa33;
+      border: none;
+      border-radius: 40px;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      width: auto;
+      display: inline-block;
+    }
+
+    /* 活期/定期独立界面的额外样式 */
+    .sub-section {
+      margin-top: 1rem;
+    }
+    .info-line {
+      background: #f0f7fa;
+      padding: 0.8rem;
+      border-radius: 30px;
+      margin: 1rem 0;
+      text-align: center;
+      font-weight: bold;
+    }
+    .back-btn {
+      background: #c2ddee;
+      border-bottom-color: #5885a2;
+      color: #113448;
+      margin-top: 1rem;
+    }
+    .fund-item {
+      background: #fff5e6;
+      border-radius: 30px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <!-- 右上角时钟（可点击） -->
+  <div id="liveClock" style="position: absolute; top: 20px; right: 30px; background: rgba(255, 255, 255, 0.7); padding: 8px 16px; border-radius: 40px; font-size: 1.3rem; font-weight: bold; color: #2d4a5e; box-shadow: 0 4px 8px rgba(0,0,0,0.1); backdrop-filter: blur(4px); border: 2px solid white; z-index: 10; cursor: pointer;">
+    加载时间...
+  </div>
+  <div class="header">
+    <h1>❤ 广财儿童银行</h1>
+    <p>活期 + 定期 + 投资 | 让零花钱长大</p>
+  </div>
+
+  <!-- 登录区域 -->
+  <div id="loginSection" class="section">
+    <div class="input-group">
+      <label>👦 小朋友名字</label>
+      <input type="text" id="username" placeholder="请输入姓名" value="何小明">
+    </div>
+    <div class="input-group">
+      <label>🔐 密码</label>
+      <input type="password" id="password" placeholder="请输入密码" value="54188">
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+        <input type="checkbox" id="showPassword" style="width: 18px; height: 18px; margin: 0;">
+        <label for="showPassword" style="font-size: 0.95rem; color: #146b9e; padding: 0;">显示密码</label>
+      </div>
+    </div>
+    <button class="btn" id="loginBtn">🔓 进入账户</button>
+    <div id="loginMessage" class="message">✨ 输入名字和密码登录</div>
+  </div>
+
+  <!-- 主账户界面（默认隐藏） -->
+  <div id="accountSection" class="section hidden">
+    <div class="welcome" id="welcomeMsg">👋 你好，何小明</div>
+    <div class="balance-box">
+      <span>💰 主账户余额</span>
+      <span id="balance">100.00</span>
+    </div>
+
+    <div class="action-row">
+      <input type="number" id="depositInput" min="0.01" step="0.01" value="10.00" placeholder="金额">
+      <button class="btn btn-small" id="depositBtn">➕ 存钱</button>
+    </div>
+    <div id="accountMessage" class="message">👉 输入金额点存钱</div>
+
+    <!-- 取钱区域 -->
+    <hr style="margin-top: 1rem;">
+    <div class="action-row">
+      <div class="input-group" style="flex: 3;">
+        <label><span>💳</span> 取款金额</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="number" id="withdrawAmount" min="0.01" step="0.01" value="10.00" style="flex: 2;">
+          <button class="btn-small" id="addTenBtn" style="flex: 1; background: #eef2f6; color: #1e3b5c; border: 1px solid #cbd6e4; border-radius: 8px; padding: 0; font-size: 1rem;">+10</button>
+        </div>
+      </div>
+      <button class="btn btn-small" id="withdrawBtn" style="flex: 1;"><span>➖</span> 取钱</button>
+    </div>
+    <div id="withdrawMessage" class="message" style="margin-top: 0.5rem;">👉 输入金额或点+10，然后取钱</div>
+
+    <!-- 储蓄目标区域 -->
+    <div class="goal-container" id="goalContainer">
+      <div class="goal-header">🎯 我的储蓄目标</div>
+      <div id="goalSetupPanel" class="goal-setup">
+        <div class="input-group" style="margin-bottom: 0.8rem;">
+          <label>📌 用途</label>
+          <select id="goalPurpose">
+            <option value="购买玩具">🧸 购买玩具</option>
+            <option value="充值氪金">🎮 充值氪金</option>
+            <option value="购买学习用品">📚 购买学习用品</option>
+            <option value="购买电子产品">💻 购买电子产品</option>
+            <option value="其他">✨ 其他</option>
+          </select>
+        </div>
+        <div class="input-group" style="margin-bottom: 0.8rem;">
+          <label>💰 目标金额 (≥500元)</label>
+          <input type="number" id="goalAmount" min="500" step="50" value="500">
+        </div>
+        <button class="btn-goal" id="setGoalBtn">🚀 设定目标</button>
+      </div>
+      <div id="goalDisplayPanel" style="display: none;">
+        <div id="goalText" style="font-weight: bold; margin-bottom: 5px;"></div>
+        <div class="goal-progress">
+          <div class="goal-progress-fill" id="goalProgressFill"></div>
+        </div>
+        <div class="goal-info">
+          <span>当前进度: <span id="progressPercent">0</span>%</span>
+          <span>已存: <span id="savedAmount">0</span> / <span id="targetAmount">0</span></span>
+        </div>
+        <button class="btn-goal" id="changeGoalBtn">✏️ 修改目标</button>
+      </div>
+    </div>
+
+    <!-- 三个功能入口 -->
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+      <button id="toDemandBtn" class="btn-goal" style="flex:1; text-align:center;">🏦 转入活期</button>
+      <button id="toFixedBtn" class="btn-goal" style="flex:1; text-align:center;">📅 存入定期</button>
+      <button id="toInvestBtn" class="btn-goal" style="flex:1; text-align:center;">📈 投资产品</button>
+    </div>
+
+    <button class="btn logout-btn" id="logoutBtn">🚪 退出账户</button>
+  </div>
+
+  <!-- 活期账户独立界面 -->
+  <div id="demandSection" class="section hidden">
+    <div class="welcome">🏦 活期账户</div>
+    <div class="info-line">活期利率：0.05% 年化（每日结息）</div>
+    <div class="balance-box" style="margin:0.5rem 0;">
+      <span>活期余额</span>
+      <span id="demandBalance">0.00</span>
+    </div>
+    <div class="balance-box" style="margin:0.5rem 0;">
+      <span>主账户可用余额</span>
+      <span id="mainBalanceHint">0.00</span>
+    </div>
+    <!-- 预期终值显示 -->
+    <div class="info-line" style="background:#ffe6c7;">
+      📈 预期终值（按当前时间增量）: <span id="demandFutureValue">0.00</span> 元
+    </div>
+    <div class="action-row">
+      <input type="number" id="demandTransferIn" min="0.01" step="0.01" value="10.00" placeholder="转入金额">
+      <button class="btn btn-small" id="demandInBtn">⬅️ 转入活期</button>
+    </div>
+    <div class="action-row">
+      <input type="number" id="demandTransferOut" min="0.01" step="0.01" value="10.00" placeholder="转出金额">
+      <button class="btn btn-small" id="demandOutBtn">➡️ 转出到主账户</button>
+    </div>
+    <div id="demandMessage" class="message">👉 可随时转入或转出</div>
+    <button class="btn back-btn" id="backFromDemandBtn">🔙 返回主账户</button>
+  </div>
+
+  <!-- 定期账户独立界面 -->
+  <div id="fixedSection" class="section hidden">
+    <div class="welcome">📅 定期存款</div>
+    <div class="balance-box" style="margin:0.5rem 0;">
+      <span>主账户可用余额</span>
+      <span id="mainBalanceHintFixed">0.00</span>
+    </div>
+    <div class="info-line" style="background:#fff0d6;">
+      定期利率：3个月0.65% | 1年1.15% | 3年1.30%<br>
+      （到期自动本息转回主账户，提前支取按活期0.05%计息）
+    </div>
+    <!-- 预期终值显示（所有定期合计） -->
+    <div class="info-line" style="background:#ffe6c7;">
+      📈 定期预期终值（按当前时间增量）: <span id="fixedFutureValue">0.00</span> 元
+    </div>
+    <div id="fixedList" style="max-height: 200px; overflow-y: auto; margin: 1rem 0;">
+      <div style="text-align:center; color:#888;">暂无定期存款</div>
+    </div>
+    <div class="action-row">
+      <input type="number" id="fixedAmount" min="50" step="10" value="100.00" placeholder="存款金额(≥50)">
+      <select id="fixedTerm" style="flex:1; padding:0.5rem;">
+        <option value="3">3个月 (0.65%)</option>
+        <option value="12">1年 (1.15%)</option>
+        <option value="36">3年 (1.30%)</option>
+      </select>
+    </div>
+    <button class="btn btn-small" id="createFixedBtn">📈 存入定期</button>
+    <div id="fixedMessage" class="message">👉 选择期限和金额，到期自动转回</div>
+    <button class="btn back-btn" id="backFromFixedBtn">🔙 返回主账户</button>
+  </div>
+
+  <!-- 投资产品独立界面（儿童现金管家ABC） -->
+  <div id="investSection" class="section hidden">
+    <div class="welcome">📊 儿童现金管家ABC</div>
+    <div class="info-line">产品选择</div>
+    <div id="fundList">
+      <!-- 动态生成三个基金产品 -->
+    </div>
+    <div class="balance-box" style="margin:0.5rem 0;">
+      <span>主账户可用余额</span>
+      <span id="mainBalanceHintInvest">0.00</span>
+    </div>
+    <!-- 我的投资区域 -->
+    <div id="myInvestments" style="margin-top: 1rem;">
+      <div class="goal-header">📈 我的投资</div>
+      <div id="investmentList" style="max-height: 200px; overflow-y: auto; margin: 0.5rem 0;">
+        <div style="text-align:center; color:#888;">暂无投资</div>
+      </div>
+    </div>
+    <div id="investMessage" class="message">👉 选择产品，输入金额购买，时间加速后将获得复利终值。投资期内取出需扣除当月利息。</div>
+    <button class="btn back-btn" id="backFromInvestBtn">🔙 返回主账户</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ==================== 账户数据 ====================
+    const VALID_USERNAME = "何小明";
+    const VALID_PASSWORD = "54188";
+    let currentBalance = 100.00;        // 主账户余额
+    let demandBalance = 0.00;            // 活期余额
+    let fixedDeposits = [];               // 定期存单列表
+    let isLoggedIn = false;
+    // 投资产品数据
+    let investments = []; // 每个元素: { name, rate, amount, startDate }  amount为用户持有金额
+    const fundNames = ["中童医药", "现金活期宝", "天天增利金"];
+    let fundRates = [0.0105, 0.0110, 0.0115]; // 初始占位，刷新时随机生成1.05%-1.15%
+    const INVESTMENT_PENALTY_RATE = 0.30; // 投资期内取出扣除当月利息的30%作为罚金
+
+    // 时间管理
+    let currentDate = new Date(); // 当前显示的日期
+    let extraMonths = 0; // 时间增量（月数）用于预期终值计算，但实际应用后重置
+
+    // 储蓄目标相关
+    let savingsGoal = null;
+    let goalPurpose = "";
+    let goalCelebrated = false;
+
+    // 定期利率映射 (年利率)
+    const fixedRates = { 3: 0.0065, 12: 0.0115, 36: 0.0130 };
+    const DEMAND_RATE = 0.0005;           // 活期年利率 0.05%
+
+    // ==================== DOM 元素 ====================
+    const loginSection = document.getElementById('loginSection');
+    const accountSection = document.getElementById('accountSection');
+    const demandSection = document.getElementById('demandSection');
+    const fixedSection = document.getElementById('fixedSection');
+    const investSection = document.getElementById('investSection');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginMessage = document.getElementById('loginMessage');
+    const welcomeMsg = document.getElementById('welcomeMsg');
+    const balanceSpan = document.getElementById('balance');
+    const depositInput = document.getElementById('depositInput');
+    const depositBtn = document.getElementById('depositBtn');
+    const accountMessage = document.getElementById('accountMessage');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // 储蓄目标DOM
+    const goalSetupPanel = document.getElementById('goalSetupPanel');
+    const goalDisplayPanel = document.getElementById('goalDisplayPanel');
+    const goalPurposeSelect = document.getElementById('goalPurpose');
+    const goalAmountInput = document.getElementById('goalAmount');
+    const setGoalBtn = document.getElementById('setGoalBtn');
+    const changeGoalBtn = document.getElementById('changeGoalBtn');
+    const goalTextSpan = document.getElementById('goalText');
+    const goalProgressFill = document.getElementById('goalProgressFill');
+    const progressPercentSpan = document.getElementById('progressPercent');
+    const savedAmountSpan = document.getElementById('savedAmount');
+    const targetAmountSpan = document.getElementById('targetAmount');
+
+    // 活期界面DOM
+    const demandBalanceSpan = document.getElementById('demandBalance');
+    const mainBalanceHint = document.getElementById('mainBalanceHint');
+    const demandTransferIn = document.getElementById('demandTransferIn');
+    const demandTransferOut = document.getElementById('demandTransferOut');
+    const demandInBtn = document.getElementById('demandInBtn');
+    const demandOutBtn = document.getElementById('demandOutBtn');
+    const demandMessage = document.getElementById('demandMessage');
+    const backFromDemandBtn = document.getElementById('backFromDemandBtn');
+    const demandFutureValueSpan = document.getElementById('demandFutureValue');
+
+    // 定期界面DOM
+    const mainBalanceHintFixed = document.getElementById('mainBalanceHintFixed');
+    const fixedAmount = document.getElementById('fixedAmount');
+    const fixedTerm = document.getElementById('fixedTerm');
+    const createFixedBtn = document.getElementById('createFixedBtn');
+    const fixedMessage = document.getElementById('fixedMessage');
+    const fixedListDiv = document.getElementById('fixedList');
+    const backFromFixedBtn = document.getElementById('backFromFixedBtn');
+    const fixedFutureValueSpan = document.getElementById('fixedFutureValue');
+
+    // 投资界面DOM
+    const mainBalanceHintInvest = document.getElementById('mainBalanceHintInvest');
+    const fundListDiv = document.getElementById('fundList');
+    const investMessage = document.getElementById('investMessage');
+    const backFromInvestBtn = document.getElementById('backFromInvestBtn');
+
+    // 按钮
+    const toDemandBtn = document.getElementById('toDemandBtn');
+    const toFixedBtn = document.getElementById('toFixedBtn');
+    const toInvestBtn = document.getElementById('toInvestBtn');
+
+    // 取钱相关
+    const withdrawAmount = document.getElementById('withdrawAmount');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const addTenBtn = document.getElementById('addTenBtn');
+    const withdrawMessage = document.getElementById('withdrawMessage');
+
+    // ==================== 辅助函数 ====================
+    // 刷新基金利率（随机1.05%-1.15%）
+    function refreshFundRates() {
+      fundRates = fundNames.map(() => {
+        let rate = (Math.random() * (0.0115 - 0.0105) + 0.0105);
+        return parseFloat(rate.toFixed(4));
+      });
+    }
+
+    // 渲染投资产品列表
+    function renderFunds() {
+      if (!fundListDiv) return;
+      let html = '';
+      for (let i = 0; i < fundNames.length; i++) {
+        const ratePercent = (fundRates[i] * 100).toFixed(2);
+        const heldAmount = (investments[i] ? investments[i].amount : 0);
+        html += `
+          <div class="fund-item">
+            <div><strong>${fundNames[i]}</strong> (利率 ${ratePercent}%)</div>
+            <div>持有金额: ${heldAmount.toFixed(2)} 元</div>
+            <div class="action-row" style="margin-top:0.5rem;">
+              <input type="number" id="investAmount_${i}" placeholder="投资金额" min="0.01" step="10" value="100" style="flex:2;">
+              <button class="btn-small" data-fund-index="${i}" style="flex:1;">买入</button>
+            </div>
+          </div>
+        `;
+      }
+      fundListDiv.innerHTML = html;
+      // 绑定买入按钮事件
+      for (let i = 0; i < fundNames.length; i++) {
+        const btn = fundListDiv.querySelector(`.btn-small[data-fund-index="${i}"]`);
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            const amountInput = document.getElementById(`investAmount_${i}`);
+            let amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+              investMessage.innerText = '请输入大于0的金额';
+              return;
+            }
+            if (amount > currentBalance) {
+              investMessage.innerText = `主账户余额不足，当前可用 ${currentBalance.toFixed(2)} 元`;
+              return;
+            }
+            // 扣款并增加基金持有份额
+            currentBalance -= amount;
+            if (!investments[i]) investments[i] = { name: fundNames[i], amount: 0, rate: fundRates[i], startDate: new Date(currentDate) };
+            investments[i].amount += amount;
+            investments[i].rate = fundRates[i]; // 同步最新利率
+            updateMainBalanceDisplay();
+            renderFunds(); // 刷新显示
+            renderInvestmentList(); // 刷新我的投资列表
+            investMessage.innerText = `✅ 成功买入 ${fundNames[i]} ${amount.toFixed(2)} 元`;
+          });
+        }
+      }
+    }
+
+    // 渲染我的投资列表
+    function renderInvestmentList() {
+      const investmentListDiv = document.getElementById('investmentList');
+      if (!investmentListDiv) return;
+      let html = '';
+      let hasInvestment = false;
+      for (let i = 0; i < investments.length; i++) {
+        if (investments[i] && investments[i].amount > 0) {
+          hasInvestment = true;
+          const ratePercent = (investments[i].rate * 100).toFixed(2);
+          const startDateStr = investments[i].startDate.toLocaleDateString();
+          // 计算持有月数
+          const now = new Date(currentDate);
+          const monthsHeld = (now.getFullYear() - investments[i].startDate.getFullYear()) * 12 + (now.getMonth() - investments[i].startDate.getMonth());
+          html += `
+            <div style="background:#fff5e6; border-radius:20px; padding:0.8rem; margin-bottom:0.8rem;">
+              <div><strong>💰 ${investments[i].name}</strong> | 持有 ${investments[i].amount.toFixed(2)} 元</div>
+              <div>年利率: ${ratePercent}% | 持有${monthsHeld}个月</div>
+              <div>购买日期: ${startDateStr}</div>
+              <div class="action-row" style="margin-top:0.5rem;">
+                <input type="number" id="redeemAmount_${i}" placeholder="取出金额" min="0.01" step="10" value="${Math.min(investments[i].amount, 100).toFixed(2)}" style="flex:2;">
+                <button class="btn-small" data-redeem-index="${i}" style="flex:1; background:#ff6b6b; color:white;">取出</button>
+              </div>
+            </div>
+          `;
+        }
+      }
+      if (!hasInvestment) {
+        html = '<div style="text-align:center; color:#888;">暂无投资</div>';
+      }
+      investmentListDiv.innerHTML = html;
+      // 绑定取出按钮事件
+      for (let i = 0; i < investments.length; i++) {
+        const btn = investmentListDiv.querySelector(`.btn-small[data-redeem-index="${i}"]`);
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            redeemInvestment(i);
+          });
+        }
+      }
+    }
+
+    // 取出投资（扣除当月利息的30%作为罚金）
+    function redeemInvestment(index) {
+      const amountInput = document.getElementById(`redeemAmount_${index}`);
+      let redeemAmount = parseFloat(amountInput.value);
+      if (isNaN(redeemAmount) || redeemAmount <= 0) {
+        investMessage.innerText = '请输入大于0的金额';
+        return;
+      }
+      if (!investments[index] || investments[index].amount < redeemAmount) {
+        investMessage.innerText = `投资余额不足，当前持有 ${(investments[index] ? investments[index].amount.toFixed(2) : '0')} 元`;
+        return;
+      }
+      // 计算持有时间
+      const now = new Date(currentDate);
+      const monthsHeld = (now.getFullYear() - investments[index].startDate.getFullYear()) * 12 + (now.getMonth() - investments[index].startDate.getMonth());
+      // 计算赎回金额应得的利息（按月计算）
+      const monthlyRate = investments[index].rate / 12;
+      const earnedInterest = redeemAmount * monthlyRate * monthsHeld;
+      // 扣除30%利息作为罚金
+      const penalty = earnedInterest * INVESTMENT_PENALTY_RATE;
+      const actualPenalty = Math.min(penalty, redeemAmount * 0.01); // 罚金不超过赎回金额的1%
+      const amountToReturn = redeemAmount - actualPenalty;
+      // 减少投资份额
+      investments[index].amount -= redeemAmount;
+      if (investments[index].amount <= 0.01) {
+        investments[index].amount = 0;
+      }
+      currentBalance += amountToReturn;
+      currentBalance = Math.round(currentBalance * 100) / 100;
+      updateMainBalanceDisplay();
+      renderFunds();
+      renderInvestmentList();
+      investMessage.innerText = `✅ 取出 ${redeemAmount.toFixed(2)} 元（扣除 ${actualPenalty.toFixed(2)} 元罚金），实际到账 ${amountToReturn.toFixed(2)} 元`;
+    }
+
+    // 应用时间增量（将额外月数转换为年，复利计算所有账户）
+    function applyTimeIncrease(months) {
+      if (months === 0) return;
+      const years = months / 12;
+      // 1. 活期复利
+      if (demandBalance > 0) {
+        const factor = Math.pow(1 + DEMAND_RATE, years);
+        demandBalance = demandBalance * factor;
+        demandBalance = Math.round(demandBalance * 100) / 100;
+      }
+      // 2. 定期复利（未到期的定期，按各自利率复利）
+      for (let fd of fixedDeposits) {
+        if (!fd.matured) {
+          const factor = Math.pow(1 + fd.rate, years);
+          fd.amount = fd.amount * factor;
+          fd.amount = Math.round(fd.amount * 100) / 100;
+          // 同时调整到期日（向后推迟相同月数）
+          fd.maturityDate.setMonth(fd.maturityDate.getMonth() + months);
+        }
+      }
+      // 3. 投资产品复利
+      for (let i = 0; i < investments.length; i++) {
+        if (investments[i] && investments[i].amount > 0) {
+          const factor = Math.pow(1 + fundRates[i], years);
+          investments[i].amount = investments[i].amount * factor;
+          investments[i].amount = Math.round(investments[i].amount * 100) / 100;
+        }
+      }
+      // 更新显示
+      updateMainBalanceDisplay();
+      updateDemandDisplay();
+      renderFixedList();
+      renderFunds();
+      renderInvestmentList();
+      // 重新计算活期和定期预期终值（现在额外时间已清零）
+      updateFutureValues();
+    }
+
+    // 计算并显示预期终值（基于当前额外时间）
+    function updateFutureValues() {
+      if (!isLoggedIn) return;
+      const years = extraMonths / 12;
+      // 活期终值
+      let demandFV = demandBalance;
+      if (demandBalance > 0 && years > 0) {
+        demandFV = demandBalance * Math.pow(1 + DEMAND_RATE, years);
+      }
+      demandFutureValueSpan.textContent = demandFV.toFixed(2);
+      // 定期终值（所有未到期定期的合计终值）
+      let totalFixedFV = 0;
+      for (let fd of fixedDeposits) {
+        if (!fd.matured) {
+          let fv = fd.amount;
+          if (years > 0) fv = fd.amount * Math.pow(1 + fd.rate, years);
+          totalFixedFV += fv;
+        } else {
+          totalFixedFV += fd.amount; // 已到期的不再计息
+        }
+      }
+      fixedFutureValueSpan.textContent = totalFixedFV.toFixed(2);
+    }
+
+    // 右上角时钟显示并支持点击修改时间
+    function updateClock() {
+      const dateTimeString = currentDate.toLocaleString('zh-CN', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+      const clockDiv = document.getElementById('liveClock');
+      clockDiv.textContent = dateTimeString;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // 点击时钟弹出时间修改窗口
+    const clockDiv = document.getElementById('liveClock');
+    clockDiv.addEventListener('click', () => {
+      let monthsInput = prompt("请输入要增加的月数（整数）：", "0");
+      let yearsInput = prompt("请输入要增加的年数（整数）：", "0");
+      let months = parseInt(monthsInput) || 0;
+      let years = parseInt(yearsInput) || 0;
+      let totalMonths = months + years * 12;
+      if (totalMonths > 0) {
+        // 增加currentDate的月份
+        currentDate.setMonth(currentDate.getMonth() + totalMonths);
+        applyTimeIncrease(totalMonths);
+        extraMonths = 0; // 应用后重置
+        updateFutureValues();
+        updateClock(); // 更新表盘时间
+        alert(`时间已向前推进 ${totalMonths} 个月，所有账户已按利率复利计算。`);
+      } else {
+        alert("未增加时间");
+      }
+    });
+
+    const showPwdCheckbox = document.getElementById('showPassword');
+    const pwdInput = document.getElementById('password');
+    if (showPwdCheckbox) {
+      showPwdCheckbox.addEventListener('change', function() {
+        pwdInput.type = this.checked ? 'text' : 'password';
+      });
+    }
+
+    function updateMainBalanceDisplay() {
+      balanceSpan.textContent = currentBalance.toFixed(2);
+      if (mainBalanceHint) mainBalanceHint.textContent = currentBalance.toFixed(2);
+      if (mainBalanceHintFixed) mainBalanceHintFixed.textContent = currentBalance.toFixed(2);
+      if (mainBalanceHintInvest) mainBalanceHintInvest.textContent = currentBalance.toFixed(2);
+    }
+
+    function updateDemandDisplay() {
+      demandBalanceSpan.textContent = demandBalance.toFixed(2);
+    }
+
+    let lastDemandInterestDate = new Date(currentDate);
+
+    function settleDemandInterest() {
+      if (demandBalance <= 0) {
+        lastDemandInterestDate = new Date(currentDate);
+        return;
+      }
+      const now = new Date(currentDate);
+      const daysDiff = (now - lastDemandInterestDate) / (1000 * 60 * 60 * 24);
+      if (daysDiff >= 1) {
+        const interest = demandBalance * DEMAND_RATE * (daysDiff / 365);
+        if (interest > 0) {
+          demandBalance += interest;
+          demandBalance = Math.round(demandBalance * 100) / 100;
+          demandMessage.innerText = `✨ 活期利息入账 ${interest.toFixed(2)} 元`;
+        }
+        lastDemandInterestDate = now;
+        updateDemandDisplay();
+      }
+    }
+
+    function checkFixedMaturity() {
+      let changed = false;
+      const now = new Date(currentDate);
+      for (let i = 0; i < fixedDeposits.length; i++) {
+        const fd = fixedDeposits[i];
+        if (!fd.matured && now >= fd.maturityDate) {
+          fd.matured = true;
+          const interest = fd.amount * fd.rate * (fd.termMonths / 12);
+          const total = fd.amount + interest;
+          currentBalance += total;
+          currentBalance = Math.round(currentBalance * 100) / 100;
+          fixedMessage.innerText = `🎉 定期到期！本金${fd.amount.toFixed(2)} + 利息${interest.toFixed(2)}已转入主账户。`;
+          changed = true;
+        }
+      }
+      if (changed) {
+        fixedDeposits = fixedDeposits.filter(fd => !fd.matured);
+        updateMainBalanceDisplay();
+        renderFixedList();
+      }
+    }
+
+    function renderFixedList() {
+      if (fixedDeposits.length === 0) {
+        fixedListDiv.innerHTML = '<div style="text-align:center; color:#888;">暂无定期存款</div>';
+        return;
+      }
+      let html = '';
+      fixedDeposits.forEach((fd, idx) => {
+        const maturityStr = fd.maturityDate.toLocaleDateString();
+        const ratePercent = (fd.rate * 100).toFixed(2);
+        html += `
+          <div style="background:#fff5e6; border-radius:20px; padding:0.8rem; margin-bottom:0.8rem;">
+            <div><strong>💰 ${fd.amount.toFixed(2)} 元</strong> | ${fd.termMonths}个月 (${ratePercent}%)</div>
+            <div>📅 到期日: ${maturityStr}</div>
+            <button class="btn-goal" data-idx="${idx}" style="margin-top:0.3rem; padding:0.2rem 0.8rem;">⚡ 提前支取</button>
+          </div>
+        `;
+      });
+      fixedListDiv.innerHTML = html;
+      document.querySelectorAll('#fixedList .btn-goal').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(btn.getAttribute('data-idx'));
+          if (!isNaN(idx) && fixedDeposits[idx]) {
+            earlyWithdraw(idx);
+          }
+        });
+      });
+    }
+
+    function earlyWithdraw(idx) {
+      const fd = fixedDeposits[idx];
+      if (!fd) return;
+      const now = new Date(currentDate);
+      const daysHeld = Math.max(0, (now - fd.startDate) / (1000 * 60 * 60 * 24));
+      const interest = fd.amount * DEMAND_RATE * (daysHeld / 365);
+      const totalBack = fd.amount + interest;
+      currentBalance += totalBack;
+      currentBalance = Math.round(currentBalance * 100) / 100;
+      fixedDeposits.splice(idx, 1);
+      updateMainBalanceDisplay();
+      renderFixedList();
+      fixedMessage.innerText = `⚠️ 提前支取定期，本息合计 ${totalBack.toFixed(2)} 元已转回主账户（按活期计息）。`;
+    }
+
+    function createFixedDeposit() {
+      const amount = parseFloat(fixedAmount.value);
+      const termMonths = parseInt(fixedTerm.value);
+      if (isNaN(amount) || amount < 50) {
+        fixedMessage.innerText = '定期存款金额不能小于50元';
+        return;
+      }
+      if (amount > currentBalance) {
+        fixedMessage.innerText = `主账户余额不足，当前可用 ${currentBalance.toFixed(2)} 元`;
+        return;
+      }
+      const rate = fixedRates[termMonths];
+      if (!rate) return;
+      currentBalance -= amount;
+      currentBalance = Math.round(currentBalance * 100) / 100;
+      const startDate = new Date(currentDate);
+      const maturityDate = new Date(currentDate);
+      maturityDate.setMonth(maturityDate.getMonth() + termMonths);
+      fixedDeposits.push({
+        amount: amount,
+        termMonths: termMonths,
+        rate: rate,
+        startDate: startDate,
+        maturityDate: maturityDate,
+        matured: false
+      });
+      updateMainBalanceDisplay();
+      renderFixedList();
+      fixedMessage.innerText = `✅ 定期存入 ${amount.toFixed(2)} 元，存期 ${termMonths} 个月，年利率 ${(rate*100).toFixed(2)}%`;
+      fixedAmount.value = '100.00';
+    }
+
+    function transferToDemand() {
+      settleDemandInterest();
+      const amount = parseFloat(demandTransferIn.value);
+      if (isNaN(amount) || amount <= 0) {
+        demandMessage.innerText = '请输入大于0的金额';
+        return;
+      }
+      if (amount > currentBalance) {
+        demandMessage.innerText = `主账户余额不足，当前可用 ${currentBalance.toFixed(2)} 元`;
+        return;
+      }
+      currentBalance -= amount;
+      demandBalance += amount;
+      currentBalance = Math.round(currentBalance * 100) / 100;
+      demandBalance = Math.round(demandBalance * 100) / 100;
+      updateMainBalanceDisplay();
+      updateDemandDisplay();
+      demandMessage.innerText = `✅ 成功转入活期 ${amount.toFixed(2)} 元`;
+      demandTransferIn.value = '10.00';
+      updateFutureValues();
+    }
+
+    function transferFromDemand() {
+      settleDemandInterest();
+      const amount = parseFloat(demandTransferOut.value);
+      if (isNaN(amount) || amount <= 0) {
+        demandMessage.innerText = '请输入大于0的金额';
+        return;
+      }
+      if (amount > demandBalance) {
+        demandMessage.innerText = `活期余额不足，当前活期 ${demandBalance.toFixed(2)} 元`;
+        return;
+      }
+      demandBalance -= amount;
+      currentBalance += amount;
+      currentBalance = Math.round(currentBalance * 100) / 100;
+      demandBalance = Math.round(demandBalance * 100) / 100;
+      updateMainBalanceDisplay();
+      updateDemandDisplay();
+      demandMessage.innerText = `✅ 成功转出到主账户 ${amount.toFixed(2)} 元`;
+      demandTransferOut.value = '10.00';
+      updateFutureValues();
+    }
+
+    // 储蓄目标功能
+    function updateGoalProgress() {
+      if (!savingsGoal || savingsGoal <= 0) {
+        goalDisplayPanel.style.display = 'none';
+        goalSetupPanel.style.display = 'block';
+        return;
+      }
+      goalDisplayPanel.style.display = 'block';
+      goalSetupPanel.style.display = 'none';
+      targetAmountSpan.textContent = savingsGoal.toFixed(2);
+      savedAmountSpan.textContent = currentBalance.toFixed(2);
+      let percent = (currentBalance / savingsGoal) * 100;
+      percent = Math.min(percent, 100);
+      progressPercentSpan.textContent = Math.floor(percent);
+      goalProgressFill.style.width = percent + '%';
+      goalTextSpan.innerHTML = `🎯 目标: ${goalPurpose} (${savingsGoal.toFixed(2)}元)`;
+    }
+    function fireConfetti() {
+      const canvas = document.createElement('canvas');
+      canvas.style.position = 'fixed'; canvas.style.top = '0'; canvas.style.left = '0';
+      canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.pointerEvents = 'none';
+      canvas.style.zIndex = '9999'; document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      const particles = []; const colors = ['#ffd700', '#ffaa33', '#ff6b6b', '#4ecdc4', '#ffe66d'];
+      for (let i = 0; i < 150; i++) particles.push({ x: canvas.width/2, y: canvas.height/2, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12-8, size: Math.random()*6+2, color: colors[Math.floor(Math.random()*colors.length)], gravity: 0.2, alpha:1 });
+      let animationId;
+      function draw() { ctx.clearRect(0,0,canvas.width,canvas.height); let allDead=true; for(let p of particles){ if(p.alpha<=0)continue; allDead=false; p.x+=p.vx; p.y+=p.vy; p.vy+=p.gravity; p.alpha-=0.02; ctx.globalAlpha=p.alpha; ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,p.size,p.size); } if(allDead){ cancelAnimationFrame(animationId); document.body.removeChild(canvas); }else{ animationId=requestAnimationFrame(draw); } } draw();
+      setTimeout(()=>{ if(document.body.contains(canvas)) document.body.removeChild(canvas); if(animationId) cancelAnimationFrame(animationId); },3000);
+    }
+    function checkGoalAchievement() {
+      if (!savingsGoal || savingsGoal <= 0) return;
+      if (currentBalance >= savingsGoal && !goalCelebrated) {
+        goalCelebrated = true;
+        fireConfetti();
+        alert(`🎉 太棒了！你已经存够了${goalPurpose}需要的${savingsGoal.toFixed(2)}元！ 🎉`);
+        updateGoalProgress();
+      }
+    }
+    function setGoal() {
+      let amount = parseFloat(goalAmountInput.value);
+      if (isNaN(amount) || amount < 500) { alert("目标金额不能小于500元"); return; }
+      let purpose = goalPurposeSelect.value;
+      if (purpose === "其他") { let custom = prompt("请输入自定义用途:", "我的梦想"); if (custom && custom.trim() !== "") purpose = custom.trim(); else purpose = "美好愿望"; }
+      savingsGoal = amount; goalPurpose = purpose; goalCelebrated = (currentBalance >= savingsGoal);
+      updateGoalProgress();
+      if (currentBalance >= savingsGoal && !goalCelebrated) checkGoalAchievement();
+    }
+    function showGoalSetup() {
+      goalSetupPanel.style.display = 'block'; goalDisplayPanel.style.display = 'none';
+      if (savingsGoal) { goalAmountInput.value = savingsGoal; let matched=false; for(let i=0;i<goalPurposeSelect.options.length;i++){ if(goalPurposeSelect.options[i].value===goalPurpose){ goalPurposeSelect.selectedIndex=i; matched=true; break; } } if(!matched && goalPurpose) goalPurposeSelect.value="其他"; }
+      else { goalAmountInput.value=500; goalPurposeSelect.selectedIndex=0; }
+    }
+
+    // 界面切换
+    function showMainAccount() {
+      accountSection.classList.remove('hidden');
+      demandSection.classList.add('hidden');
+      fixedSection.classList.add('hidden');
+      investSection.classList.add('hidden');
+      updateMainBalanceDisplay();
+      if (savingsGoal) updateGoalProgress(); else showGoalSetup();
+      checkGoalAchievement();
+      updateFutureValues();
+    }
+    function showDemand() {
+      settleDemandInterest();
+      updateDemandDisplay();
+      updateMainBalanceDisplay();
+      accountSection.classList.add('hidden');
+      demandSection.classList.remove('hidden');
+      fixedSection.classList.add('hidden');
+      investSection.classList.add('hidden');
+      updateFutureValues();
+    }
+    function showFixed() {
+      checkFixedMaturity();
+      renderFixedList();
+      updateMainBalanceDisplay();
+      accountSection.classList.add('hidden');
+      fixedSection.classList.remove('hidden');
+      demandSection.classList.add('hidden');
+      investSection.classList.add('hidden');
+      updateFutureValues();
+    }
+    function showInvest() {
+      refreshFundRates();      // 每次进入刷新利率
+      // 同步现有基金产品的利率
+      for (let i = 0; i < investments.length; i++) {
+        if (investments[i]) investments[i].rate = fundRates[i];
+      }
+      renderFunds();
+      renderInvestmentList();
+      updateMainBalanceDisplay();
+      accountSection.classList.add('hidden');
+      investSection.classList.remove('hidden');
+      demandSection.classList.add('hidden');
+      fixedSection.classList.add('hidden');
+    }
+
+    // 登录登出
+    function login() {
+      isLoggedIn = true;
+      loginSection.classList.add('hidden');
+      showMainAccount();
+      welcomeMsg.innerText = '👋 你好，何小明';
+      accountMessage.innerText = '👉 输入金额点存钱';
+      loginMessage.innerText = '✨ 输入名字和密码登录';
+      lastDemandInterestDate = new Date(currentDate);
+      // 初始化投资产品数据
+      investments = [];
+      refreshFundRates();
+      updateFutureValues();
+    }
+    function logout() {
+      isLoggedIn = false;
+      accountSection.classList.add('hidden');
+      demandSection.classList.add('hidden');
+      fixedSection.classList.add('hidden');
+      investSection.classList.add('hidden');
+      loginSection.classList.remove('hidden');
+      usernameInput.value = VALID_USERNAME;
+      passwordInput.value = VALID_PASSWORD;
+      loginMessage.innerText = '👋 已安全退出账号';
+    }
+    function handleLogin() {
+      const enteredUser = usernameInput.value.trim();
+      const enteredPwd = passwordInput.value;
+      if (enteredUser === VALID_USERNAME && enteredPwd === VALID_PASSWORD) login();
+      else loginMessage.innerText = '❌ 账号或密码不正确 ';
+    }
+
+    function handleDeposit() {
+      if (!isLoggedIn) { logout(); return; }
+      const amount = parseFloat(depositInput.value);
+      if (isNaN(amount) || amount <= 0) { accountMessage.innerText = '金额必须大于0'; return; }
+      if (amount > 10000) { accountMessage.innerText = '一次不得超过10000元'; return; }
+      currentBalance += amount;
+      currentBalance = Math.round(currentBalance * 100) / 100;
+      updateMainBalanceDisplay();
+      accountMessage.innerText = `✅ 存入 ${amount.toFixed(2)} 元成功！`;
+      depositInput.value = '10.00';
+      if (savingsGoal) updateGoalProgress();
+      checkGoalAchievement();
+      updateFutureValues();
+    }
+    function handleWithdraw() {
+      if (!isLoggedIn) { logout(); return; }
+      const amount = parseFloat(withdrawAmount.value);
+      if (isNaN(amount) || amount <= 0) { withdrawMessage.innerText = '金额必须大于0'; return; }
+      if (amount > currentBalance) { withdrawMessage.innerText = `余额不足，当前可用 ${currentBalance.toFixed(2)} 元`; return; }
+      currentBalance -= amount;
+      currentBalance = Math.round(currentBalance * 100) / 100;
+      updateMainBalanceDisplay();
+      withdrawMessage.innerText = `✅ 取出 ${amount.toFixed(2)} 元成功！`;
+      withdrawAmount.value = '10.00';
+      if (savingsGoal) updateGoalProgress();
+      checkGoalAchievement();
+      updateFutureValues();
+    }
+    addTenBtn.addEventListener('click', () => { let v = parseFloat(withdrawAmount.value) || 0; withdrawAmount.value = (v+10).toFixed(2); });
+
+    // 绑定事件
+    loginBtn.addEventListener('click', handleLogin);
+    depositBtn.addEventListener('click', handleDeposit);
+    withdrawBtn.addEventListener('click', handleWithdraw);
+    logoutBtn.addEventListener('click', logout);
+    setGoalBtn.addEventListener('click', setGoal);
+    changeGoalBtn.addEventListener('click', showGoalSetup);
+    toDemandBtn.addEventListener('click', showDemand);
+    toFixedBtn.addEventListener('click', showFixed);
+    toInvestBtn.addEventListener('click', showInvest);
+    backFromDemandBtn.addEventListener('click', showMainAccount);
+    backFromFixedBtn.addEventListener('click', showMainAccount);
+    backFromInvestBtn.addEventListener('click', showMainAccount);
+    demandInBtn.addEventListener('click', transferToDemand);
+    demandOutBtn.addEventListener('click', transferFromDemand);
+    createFixedBtn.addEventListener('click', createFixedDeposit);
+
+    // 回车支持
+    passwordInput.addEventListener('keypress', e => { if(e.key === 'Enter') handleLogin(); });
+    usernameInput.addEventListener('keypress', e => { if(e.key === 'Enter') handleLogin(); });
+    depositInput.addEventListener('keypress', e => { if(e.key === 'Enter') handleDeposit(); });
+    withdrawAmount.addEventListener('keypress', e => { if(e.key === 'Enter') handleWithdraw(); });
+    demandTransferIn.addEventListener('keypress', e => { if(e.key === 'Enter') transferToDemand(); });
+    demandTransferOut.addEventListener('keypress', e => { if(e.key === 'Enter') transferFromDemand(); });
+    fixedAmount.addEventListener('keypress', e => { if(e.key === 'Enter') createFixedDeposit(); });
+
+    // 初始状态
+    accountSection.classList.add('hidden');
+    demandSection.classList.add('hidden');
+    fixedSection.classList.add('hidden');
+    investSection.classList.add('hidden');
+    loginSection.classList.remove('hidden');
+    goalSetupPanel.style.display = 'block';
+    goalDisplayPanel.style.display = 'none';
+  })();
+</script>
+</body>
+</html>
